@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Read(C:\\Users\\Alen\\AppData\\Roaming\\Claude/**)",
+      "Bash(powershell:*)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp\\src\\app/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp\\src\\lib/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp\\src\\components/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp\\from v0/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp\\from v0/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp\\from v0\\lib/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp\\src\\lib/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp\\src\\lib/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp\\src\\store/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp\\src\\types/**)",
+      "Read(/C:\\Users\\Alen\\contentos-mvp/**)",
+      "Bash(node:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
