@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
 
     const { data, error } = await supabase
       .from('postcards')
-      .insert(postcard)
+      .insert(postcard as any) // Type cast for Supabase compatibility
       .select()
       .single()
 
