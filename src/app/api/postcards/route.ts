@@ -196,7 +196,7 @@ export async function PUT(request: NextRequest) {
 
     const { data, error } = await supabase
       .from('postcards')
-      .update(update)
+      .update(update as any) // Type cast for Supabase compatibility
       .eq('id', body.id)
       .select()
       .single()
