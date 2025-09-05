@@ -1,20 +1,29 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { PostTemplate } from '@/types/database'
 
-// Check if API key is available
-if (!process.env.CLAUDE_API_KEY) {
-  throw new Error(
-    'CLAUDE_API_KEY is not set. Please add it to your environment variables.'
-  )
+// Create a function to lazily initialize the Anthropic client
+const createAnthropicClient = () => {
+  const apiKey = process.env.CLAUDE_API_KEY
+  
+  // During build or when API key is missing, return a dummy client
+  if (!apiKey) {
+    if (typeof window !== 'undefined') {
+      console.error('CLAUDE_API_KEY is not set. Please add it to your environment variables.')
+    }
+    // Return null during build to prevent errors
+    return null as any
+  }
+  
+  return new Anthropic({
+    apiKey,
+    // Optional: Add custom configuration
+    maxRetries: 2,
+    timeout: 60000, // 60 seconds
+  })
 }
 
 // Create and configure the Anthropic client with error handling
-const anthropic = new Anthropic({
-  apiKey: process.env.CLAUDE_API_KEY,
-  // Optional: Add custom configuration
-  maxRetries: 2,
-  timeout: 60000, // 60 seconds
-})
+const anthropic = createAnthropicClient()
 
 // Export the client instance for use in API routes
 export default anthropic
