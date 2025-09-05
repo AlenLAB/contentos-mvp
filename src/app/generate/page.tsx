@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePostcardStore } from '@/store/postcards'
 import { AppLayout } from '@/components/AppLayout'
+import { ContentGenerationDialogEnhanced } from '@/components/ContentGenerationDialogEnhanced'
 import { toast } from 'sonner'
 import { 
   Loader2, 
@@ -41,6 +42,7 @@ interface FormErrors {
 export default function GeneratePage() {
   const router = useRouter()
   const { generatePhaseContent, isLoading } = usePostcardStore()
+  const [dialogOpen, setDialogOpen] = useState(false)
   
   // Form state
   const [formData, setFormData] = useState<FormData>({
@@ -248,13 +250,22 @@ export default function GeneratePage() {
               Back to Dashboard
             </Button>
             
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                <Sparkles className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-500/20 rounded-lg">
+                  <Sparkles className="h-6 w-6 text-emerald-500" />
+                </div>
+                <h1 className="text-3xl font-bold text-white">
+                  Generate Content Phase
+                </h1>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Generate Content Phase
-              </h1>
+              <Button
+                onClick={() => setDialogOpen(true)}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              >
+                <Wand2 className="h-4 w-4 mr-2" />
+                Enhanced Generator
+              </Button>
             </div>
             <p className="text-gray-600 dark:text-gray-400">
               Create AI-powered content for multiple days at once
@@ -505,6 +516,12 @@ export default function GeneratePage() {
           )}
         </div>
       </main>
+      
+      {/* Enhanced Generation Dialog */}
+      <ContentGenerationDialogEnhanced 
+        open={dialogOpen} 
+        onOpenChange={setDialogOpen} 
+      />
     </AppLayout>
   )
 }

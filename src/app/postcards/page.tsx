@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { usePostcardStore } from '@/store/postcards'
-import { PostcardList } from '@/components/PostcardList'
+import { PostcardListSimple } from '@/components/PostcardListSimple'
 import { AppLayout } from '@/components/AppLayout'
 import { toast } from 'sonner'
 
@@ -38,7 +38,7 @@ export default function PostcardsPage() {
 
   return (
     <AppLayout>
-      <PostcardList />
+      <PostcardListSimple />
     </AppLayout>
   )
 }

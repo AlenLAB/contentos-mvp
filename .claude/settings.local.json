@@ -24,7 +24,14 @@
       "Read(/C:\\Users\\Alen\\contentos-mvp\\src\\store/**)",
       "Read(/C:\\Users\\Alen\\contentos-mvp\\src\\types/**)",
       "Read(/C:\\Users\\Alen\\contentos-mvp/**)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(cat:*)",
+      "Bash(rm:*)",
+      "Bash(npx vercel link:*)",
+      "Bash(npx vercel:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

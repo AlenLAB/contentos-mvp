@@ -14,7 +14,8 @@ import {
   ChevronLeft,
   FileText,
   Settings,
-  HelpCircle
+  HelpCircle,
+  Layers
 } from "lucide-react"
 
 // Navigation items
@@ -24,6 +25,12 @@ const navigationItems = [
     href: "/dashboard",
     icon: Home,
     description: "Overview and stats"
+  },
+  {
+    title: "Postcards",
+    href: "/postcards",
+    icon: Layers,
+    description: "Manage content"
   },
   {
     title: "Editor",
@@ -97,71 +104,74 @@ export default function AppLayout({
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Mobile Menu Button */}
-      {isMobile && (
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg md:hidden"
-        >
-          {sidebarOpen ? (
-            <X className="h-5 w-5" />
-          ) : (
-            <Menu className="h-5 w-5" />
-          )}
-        </button>
-      )}
+    <div className="min-h-screen flex bg-zinc-900">
+      {/* Top Navigation Bar with Glassmorphic Effect */}
+      <header className="fixed top-0 left-0 right-0 h-16 bg-zinc-900/70 backdrop-blur-lg border-b border-zinc-800 z-40 flex items-center px-4">
+        {/* Mobile Menu Button */}
+        {isMobile && (
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 text-white hover:bg-zinc-800 rounded-lg transition-colors md:hidden"
+          >
+            {sidebarOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
+        )}
+
+        {/* Logo/Brand */}
+        <div className={cn(
+          "flex items-center gap-2",
+          isMobile ? "ml-4" : (sidebarCollapsed ? "ml-20" : "ml-72")
+        )}>
+          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+            <FileText className="h-5 w-5 text-white" />
+          </div>
+          <span className="font-bold text-lg text-white">ContentOS</span>
+        </div>
+
+        {/* Top Navigation Actions */}
+        <div className="ml-auto flex items-center gap-2">
+          <button className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors">
+            <Settings className="h-5 w-5" />
+          </button>
+        </div>
+      </header>
 
       {/* Sidebar */}
       <aside
         className={cn(
-          "bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 flex flex-col",
+          "fixed top-16 bottom-0 bg-zinc-950 border-r border-zinc-800 transition-all duration-300 flex flex-col z-30",
           isMobile ? (
             sidebarOpen 
-              ? "fixed inset-0 z-40 w-64" 
-              : "fixed -left-64 w-64"
+              ? "left-0 w-64" 
+              : "-left-64 w-64"
           ) : (
             sidebarCollapsed 
-              ? "w-16" 
-              : "w-64"
+              ? "left-0 w-16" 
+              : "left-0 w-64"
           )
         )}
       >
-        {/* Sidebar Header */}
-        <div className="h-16 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4">
-          {(!sidebarCollapsed || isMobile) && (
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <FileText className="h-5 w-5 text-white" />
-              </div>
-              <span className="font-bold text-lg">ContentOS</span>
-            </Link>
-          )}
-          
-          {!isMobile && (
+        {/* Collapse Toggle (Desktop Only) */}
+        {!isMobile && (
+          <div className="p-2 border-b border-zinc-800">
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="w-full p-2 hover:bg-zinc-800 rounded-lg transition-colors text-zinc-400 hover:text-white flex items-center justify-center"
             >
               <ChevronLeft className={cn(
                 "h-4 w-4 transition-transform",
                 sidebarCollapsed && "rotate-180"
               )} />
             </button>
-          )}
-
-          {isMobile && (
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Navigation Items */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navigationItems.map((item) => {
             const Icon = item.icon
             const active = isActive(item.href)
@@ -171,15 +181,15 @@ export default function AppLayout({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200",
+                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group relative",
                   active 
-                    ? "bg-primary text-primary-foreground" 
-                    : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                    ? "bg-emerald-500/20 text-emerald-400" 
+                    : "hover:bg-zinc-800 text-zinc-400 hover:text-white"
                 )}
               >
                 <Icon className={cn(
                   "h-5 w-5 flex-shrink-0",
-                  active && "text-primary-foreground"
+                  active && "text-emerald-400"
                 )} />
                 
                 {(!sidebarCollapsed || isMobile) && (
@@ -189,8 +199,8 @@ export default function AppLayout({
                       <div className={cn(
                         "text-xs",
                         active 
-                          ? "text-primary-foreground/80" 
-                          : "text-gray-500 dark:text-gray-400"
+                          ? "text-emerald-400/70" 
+                          : "text-zinc-500"
                       )}>
                         {item.description}
                       </div>
@@ -199,7 +209,7 @@ export default function AppLayout({
                 )}
                 
                 {sidebarCollapsed && !isMobile && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 pointer-events-none group-hover:opacity-100 whitespace-nowrap z-50">
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-zinc-800 text-white text-xs rounded-md opacity-0 pointer-events-none group-hover:opacity-100 whitespace-nowrap z-50 transition-opacity">
                     {item.title}
                   </div>
                 )}
@@ -209,7 +219,7 @@ export default function AppLayout({
         </nav>
 
         {/* Bottom Navigation */}
-        <div className="border-t border-gray-200 dark:border-gray-800 p-4 space-y-1">
+        <div className="border-t border-zinc-800 p-4 space-y-1">
           {bottomNavigationItems.map((item) => {
             const Icon = item.icon
             const active = isActive(item.href)
@@ -221,8 +231,8 @@ export default function AppLayout({
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group relative",
                   active 
-                    ? "bg-gray-100 dark:bg-gray-800" 
-                    : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                    ? "bg-zinc-800 text-white" 
+                    : "hover:bg-zinc-800 text-zinc-400 hover:text-white"
                 )}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />
@@ -232,7 +242,7 @@ export default function AppLayout({
                 )}
                 
                 {sidebarCollapsed && !isMobile && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 pointer-events-none group-hover:opacity-100 whitespace-nowrap z-50">
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-zinc-800 text-white text-xs rounded-md opacity-0 pointer-events-none group-hover:opacity-100 whitespace-nowrap z-50 transition-opacity">
                     {item.title}
                   </div>
                 )}
@@ -243,15 +253,15 @@ export default function AppLayout({
 
         {/* User Section */}
         {(!sidebarCollapsed || isMobile) && (
-          <div className="border-t border-gray-200 dark:border-gray-800 p-4">
+          <div className="border-t border-zinc-800 p-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                U
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                A
               </div>
               <div className="flex-1">
-                <div className="text-sm font-medium">User</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Free Plan
+                <div className="text-sm font-medium text-white">Alen</div>
+                <div className="text-xs text-zinc-500">
+                  AI-First Builder
                 </div>
               </div>
             </div>
@@ -262,14 +272,14 @@ export default function AppLayout({
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-black/50 z-20 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Content */}
       <main className={cn(
-        "flex-1 flex flex-col min-h-screen",
+        "flex-1 flex flex-col min-h-screen bg-zinc-900 pt-16",
         isMobile ? "ml-0" : (sidebarCollapsed ? "ml-16" : "ml-64"),
         "transition-all duration-300"
       )}>
