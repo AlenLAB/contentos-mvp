@@ -1,36 +1,150 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ContentOS MVP
 
-## Getting Started
+A dual-platform content management system for creating and managing social media posts for Twitter/X (English) and LinkedIn (Swedish).
 
-First, run the development server:
+## 🚀 Production URL
 
+**Live Application**: https://contentos-mvp.vercel.app
+
+*Note: Requires environment variables to be configured in Vercel dashboard for full functionality.*
+
+## ✨ Features
+
+- **📝 Dual-Language Content Creation**: Generate content for Twitter/X (English, 280 chars) and LinkedIn (Swedish, 3000 chars)
+- **🤖 AI-Powered Generation**: Bulk content creation with Claude 3.5 Sonnet integration
+- **🌐 Automatic Translation**: English to Swedish translation for LinkedIn posts
+- **📅 Visual Calendar**: Drag-and-drop scheduling interface
+- **💾 Auto-Save**: Real-time synchronization with Supabase database
+- **📱 Mobile Responsive**: Fully responsive design for all devices
+- **🎨 Dark Mode**: Light/dark theme support
+- **📋 Copy to Clipboard**: Quick content copying for manual publishing
+- **🏷️ Template System**: Story and Tool templates for different content types
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15.5.2 with App Router and Turbopack
+- **Language**: TypeScript 5 with strict mode
+- **Styling**: Tailwind CSS v4 with CSS variables
+- **UI Components**: shadcn/ui components
+- **State Management**: Zustand with Supabase real-time sync
+- **Database**: Supabase (PostgreSQL)
+- **AI Integration**: Anthropic Claude API
+- **Deployment**: Vercel
+
+## 📋 Prerequisites
+
+- Node.js 18.17 or later
+- npm or yarn
+- Supabase account
+- Anthropic API key
+
+## 🔧 Installation
+
+1. **Clone the repository**:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/contentos-mvp.git
+cd contentos-mvp
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Install dependencies**:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Set up environment variables**:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a `.env.local` file in the root directory:
 
-## Learn More
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-To learn more about Next.js, take a look at the following resources:
+# Claude API Configuration
+CLAUDE_API_KEY=your_anthropic_api_key
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Run database migrations**:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Execute the migration script in your Supabase SQL editor to set up the postcards table.
 
-## Deploy on Vercel
+## 🏃‍♂️ Running Locally
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Development mode**:
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Production build**:
+```bash
+npm run build
+npm run start
+```
+
+**Linting**:
+```bash
+npm run lint
+```
+
+## 📁 Project Structure
+
+```
+src/
+├── app/                 # Next.js app router pages
+│   ├── api/            # API routes for AI and database
+│   ├── calendar/       # Calendar scheduling interface
+│   ├── dashboard/      # Dashboard overview
+│   ├── editor/         # Postcard editor
+│   ├── generate/       # AI content generation
+│   └── postcards/      # Postcard management
+├── components/         # React components
+│   ├── ui/            # shadcn/ui components
+│   └── [feature]/     # Feature-specific components
+├── lib/               # Utilities and service clients
+├── store/             # Zustand state management
+├── hooks/             # Custom React hooks
+└── types/             # TypeScript definitions
+```
+
+## 🚀 Deployment
+
+The application is deployed on Vercel. To deploy your own instance:
+
+1. Push your code to GitHub
+2. Import the repository in Vercel
+3. Configure environment variables in Vercel dashboard:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `CLAUDE_API_KEY`
+4. Deploy!
+
+## 📝 Usage Guide
+
+1. **Generate Content**: Navigate to `/generate` to create multiple posts from a phase description
+2. **Edit Posts**: Click any postcard to edit content for both platforms
+3. **Schedule Posts**: Drag postcards to calendar dates for scheduling
+4. **Copy Content**: Use copy buttons to quickly grab content for manual publishing
+5. **Track Status**: Monitor post states (draft, approved, scheduled, published)
+
+## 🔐 Security Notes
+
+- Never commit `.env.local` or expose API keys
+- Use environment variables for all sensitive data
+- Supabase Row Level Security (RLS) can be enabled for multi-user support
+
+## 📄 License
+
+MIT
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📧 Support
+
+For issues or questions, please open a GitHub issue.
+
+---
+
+Built with ❤️ using Next.js, TypeScript, and Tailwind CSS
