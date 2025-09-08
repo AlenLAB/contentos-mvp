@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Calendar, CheckCircle, Edit, Sparkles, Plus, BarChart3 } from "lucide-react"
 import { Card3D } from "@/components/ui/card-3d"
+import { cn } from "@/lib/utils"
 
 interface DashboardProps {
   stats?: {
@@ -83,13 +84,13 @@ export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
-      <header className="border-b border-border bg-card/80 backdrop-blur-xl px-6 py-6 shadow-premium">
+      <header className="border-b border-border bg-card/80 backdrop-blur-xl px-6 py-6 shadow-header">
         <div className="flex items-center justify-between">
           <div className="space-premium-xs">
             <h1 className="text-heading-2 text-foreground">ContentOS</h1>
             <p className="text-body text-muted-foreground">14 Postcards in 14 Days</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center space-premium-sm">
             <Button
               variant="outline"
               className="glass-effect hover-lift transition-premium bg-accent border-border text-foreground hover:bg-accent/80"
@@ -106,7 +107,7 @@ export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {
       <main className="p-6 lg:p-8">
         <div className="mx-auto max-w-7xl space-premium-xl">
           {/* Stats Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid space-premium-lg md:grid-cols-2 lg:grid-cols-4">
             {dashboardStats.map((stat, index) => {
               const Icon = stat.icon
               return (
@@ -114,8 +115,7 @@ export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {
                   key={stat.title}
                   variant="hero"
                   intensity={0.8}
-                  className="animate-slide-up group cursor-pointer"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className={cn("animate-slide-up group cursor-pointer", index === 0 ? "" : index === 1 ? "animation-delay-100" : index === 2 ? "animation-delay-200" : "animation-delay-300")}
                 >
                   <Card className="glass-effect transition-premium bg-card border-border hover:bg-card/80 h-full">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -139,20 +139,20 @@ export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {
             })}
           </div>
 
-          <Card3D variant="standard" className="animate-slide-up" style={{ animationDelay: "400ms" }}>
+          <Card3D variant="standard" className="animate-slide-up animation-delay-500">
             <Card className="glass-effect transition-premium bg-card border-border">
               <CardHeader className="pb-4">
                 <CardTitle className="text-heading-3 text-foreground">Quick Actions</CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-                <Button className="flex items-center gap-3 h-11 px-6 glass-effect hover-lift transition-premium group relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground">
+              <CardContent className="flex flex-col space-premium-md sm:flex-row sm:flex-wrap">
+                <Button className="btn-primary flex items-center space-premium-sm h-11 px-6 glass-effect hover-lift group relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <Sparkles className="h-4 w-4 transition-transform group-hover:rotate-12 relative z-10" />
                   <span className="text-body relative z-10">Generate Phase Content</span>
                 </Button>
                 <Button
                   variant="secondary"
-                  className="flex items-center gap-3 h-11 px-6 glass-effect hover-lift transition-premium group relative overflow-hidden bg-secondary hover:bg-secondary/80 text-secondary-foreground border-border"
+                  className="flex items-center space-premium-sm h-11 px-6 glass-effect hover-lift group relative overflow-hidden border-border"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <Plus className="h-4 w-4 transition-transform group-hover:scale-110 relative z-10" />
@@ -162,7 +162,7 @@ export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {
             </Card>
           </Card3D>
 
-          <Card3D variant="standard" className="animate-slide-up" style={{ animationDelay: "500ms" }}>
+          <Card3D variant="standard" className="animate-slide-up animation-delay-500">
             <Card className="glass-effect transition-premium bg-card border-border">
               <CardHeader className="pb-4">
                 <CardTitle className="text-heading-3 text-foreground">Recent Activity</CardTitle>
@@ -175,10 +175,9 @@ export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {
                       variant="minimal"
                       intensity={0.3}
                       gloss={false}
-                      className="animate-scale-in"
-                      style={{ animationDelay: `${600 + index * 50}ms` }}
+                      className={cn("animate-scale-in", index <= 1 ? "animation-delay-100" : index <= 3 ? "animation-delay-200" : "animation-delay-300")}
                     >
-                      <div className="flex items-center justify-between rounded-lg border border-border bg-secondary p-5 transition-premium hover:shadow-premium cursor-pointer hover:bg-secondary/80">
+                      <div className="flex items-center justify-between rounded-lg border border-border bg-secondary p-5 transition-premium hover:shadow-card-hover cursor-pointer hover:bg-secondary/80">
                         <div className="flex-1 space-premium-xs">
                           <p className="text-body-small text-foreground">
                             {activity.title.length > 50 ? `${activity.title.substring(0, 50)}...` : activity.title}

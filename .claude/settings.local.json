@@ -31,7 +31,13 @@
       "Bash(npx vercel:*)",
       "Bash(npm run build:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Read(//c/Users/Alen/OneDrive/Bilder/Screenshots/**)",
+      "Bash(npx playwright install:*)",
+      "Bash(start browser-test.html)",
+      "Bash(find:*)",
+      "Bash(playwright open:*)",
+      "Bash(npx playwright:*)"
     ],
     "deny": [],
     "ask": []

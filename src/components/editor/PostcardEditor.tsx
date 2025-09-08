@@ -19,6 +19,7 @@ import {
   Languages
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { semanticTypography } from '@/lib/typography'
 
 interface PostcardEditorProps {
   initialEnglish?: string
@@ -100,17 +101,17 @@ export function PostcardEditor({
   }
 
   return (
-    <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+    <div className="grid space-premium-lg grid-cols-1 lg:grid-cols-2">
       {/* English Content Editor */}
-      <Card className="h-fit order-1 lg:order-1">
+      <Card className="h-fit order-1 lg:order-1 hover-lift shadow-card">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center space-premium-xs">
               <Globe className="h-5 w-5" />
               English (X/Twitter)
             </CardTitle>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="gap-1">
+            <div className="flex items-center space-premium-xs">
+              <Badge variant="outline" className="space-premium-xs">
                 <Twitter className="h-3 w-3" />
                 X
               </Badge>
@@ -119,7 +120,7 @@ export function PostcardEditor({
                   size="sm"
                   variant="ghost"
                   onClick={onCopyEnglish}
-                  className="gap-1"
+                  className="space-premium-xs"
                 >
                   <Copy className="h-3 w-3" />
                   Copy
@@ -128,10 +129,10 @@ export function PostcardEditor({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
+        <CardContent className="space-y-premium-md">
+          <div className="space-y-premium-xs">
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium flex items-center gap-2">
+              <label className={cn("flex items-center space-premium-xs", semanticTypography.label)}>
                 <Type className="h-4 w-4" />
                 Content
               </label>
@@ -151,7 +152,7 @@ export function PostcardEditor({
             />
             <Progress value={englishPercentage} className="h-1" />
             {englishPercentage > 80 && (
-              <p className="text-xs text-orange-500 flex items-center gap-1">
+              <p className={cn("text-orange-500 flex items-center space-premium-xs", semanticTypography.error)}>
                 <AlertCircle className="h-3 w-3" />
                 {characterLimits.english - englishContent.length} characters remaining
               </p>
@@ -159,12 +160,12 @@ export function PostcardEditor({
           </div>
 
           {/* Template Selector */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
+          <div className="space-y-premium-xs">
+            <label className="text-sm font-medium flex items-center space-premium-xs">
               <Hash className="h-4 w-4" />
               Template Type
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 space-premium-xs">
               <Button
                 variant={selectedTemplate === 'story' ? 'default' : 'outline'}
                 onClick={() => handleTemplateChange('story')}
@@ -185,15 +186,15 @@ export function PostcardEditor({
       </Card>
 
       {/* Swedish Content Editor */}
-      <Card className="h-fit order-2 lg:order-2">
+      <Card className="h-fit order-2 lg:order-2 hover-lift shadow-card">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center space-premium-xs">
               <Languages className="h-5 w-5" />
               Swedish (LinkedIn)
             </CardTitle>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="gap-1">
+            <div className="flex items-center space-premium-xs">
+              <Badge variant="outline" className="space-premium-xs">
                 <Linkedin className="h-3 w-3" />
                 LinkedIn
               </Badge>
@@ -202,7 +203,7 @@ export function PostcardEditor({
                   size="sm"
                   variant="ghost"
                   onClick={onCopySwedish}
-                  className="gap-1"
+                  className="space-premium-xs"
                 >
                   <Copy className="h-3 w-3" />
                   Copy
@@ -211,10 +212,10 @@ export function PostcardEditor({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
+        <CardContent className="space-y-premium-md">
+          <div className="space-y-premium-xs">
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium flex items-center gap-2">
+              <label className={cn("flex items-center space-premium-xs", semanticTypography.label)}>
                 <Type className="h-4 w-4" />
                 Innehåll
               </label>
@@ -234,24 +235,24 @@ export function PostcardEditor({
             />
             <Progress value={swedishPercentage} className="h-1" />
             {swedishPercentage > 80 && (
-              <p className="text-xs text-orange-500 flex items-center gap-1">
+              <p className={cn("text-orange-500 flex items-center space-premium-xs", semanticTypography.error)}>
                 <AlertCircle className="h-3 w-3" />
                 {characterLimits.swedish - swedishContent.length} tecken kvar
               </p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <p className="text-xs text-gray-500">
+          <div className="space-y-premium-xs">
+            <p className={cn("text-gray-500", semanticTypography.hint)}>
               💡 <strong>Tip:</strong> LinkedIn posts perform best between 500-1000 characters
             </p>
             {swedishContent.length > 0 && swedishContent.length < 500 && (
-              <p className="text-xs text-orange-500">
+              <p className={cn("text-orange-500", semanticTypography.warning)}>
                 Consider expanding your content for better LinkedIn engagement
               </p>
             )}
             {swedishContent.length >= 500 && swedishContent.length <= 1000 && (
-              <p className="text-xs text-green-500 flex items-center gap-1">
+              <p className={cn("text-green-500 flex items-center space-premium-xs", semanticTypography.success)}>
                 <CheckCircle className="h-3 w-3" />
                 Optimal length for LinkedIn engagement
               </p>
@@ -263,7 +264,7 @@ export function PostcardEditor({
       {/* Save Status */}
       {saveStatus && (
         <div className="lg:col-span-2">
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+          <div className={cn("flex items-center justify-center space-premium-xs text-gray-500", semanticTypography.description)}>
             {isSaving ? (
               <>
                 <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary" />

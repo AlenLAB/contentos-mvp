@@ -20,6 +20,7 @@ import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { semanticTypography } from '@/lib/typography'
 import { 
   Loader2, 
   CheckCircle, 
@@ -136,7 +137,7 @@ export function ContentGenerationDialogEnhanced({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-zinc-950 border-zinc-800 text-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+          <DialogTitle className={cn("flex items-center space-premium-xs", semanticTypography.sectionTitle)}>
             <Sparkles className="h-5 w-5 text-emerald-500" />
             Generate Phase Content
           </DialogTitle>
@@ -146,35 +147,35 @@ export function ContentGenerationDialogEnhanced({
         </DialogHeader>
 
         {state === 'loading' && (
-          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+          <div className="flex flex-col items-center justify-center padding-premium-3xl space-y-premium-md">
             <div className="relative">
               <Loader2 className="h-12 w-12 animate-spin text-emerald-500" />
               <div className="absolute inset-0 blur-xl bg-emerald-500/20 animate-pulse" />
             </div>
-            <p className="text-sm text-zinc-400">
+            <p className={cn("text-zinc-400", semanticTypography.description)}>
               Generating {calculateTotalPosts()} postcards...
             </p>
-            <p className="text-xs text-zinc-500">
+            <p className={cn("text-zinc-500", semanticTypography.hint)}>
               This may take a minute
             </p>
           </div>
         )}
 
         {state === 'success' && (
-          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+          <div className="flex flex-col items-center justify-center padding-premium-3xl space-y-premium-md">
             <CheckCircle className="h-12 w-12 text-emerald-500" />
-            <p className="text-lg font-medium text-white">Successfully generated!</p>
-            <p className="text-sm text-zinc-400">
+            <p className={cn("text-white", semanticTypography.success)}>Successfully generated!</p>
+            <p className={cn("text-zinc-400", semanticTypography.description)}>
               {calculateTotalPosts()} postcards created
             </p>
           </div>
         )}
 
         {state === 'setup' && (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-premium-lg">
             {/* Phase Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 space-premium-md">
+              <div className="space-y-premium-xs">
                 <Label htmlFor="phaseName" className="text-white">
                   Phase Name *
                 </Label>
@@ -188,8 +189,8 @@ export function ContentGenerationDialogEnhanced({
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="duration" className="text-white flex items-center gap-2">
+              <div className="space-y-premium-xs">
+                <Label htmlFor="duration" className="text-white flex items-center space-premium-xs">
                   <Calendar className="h-4 w-4" />
                   Duration: {formData.duration} days
                 </Label>
@@ -202,7 +203,7 @@ export function ContentGenerationDialogEnhanced({
                   step={1}
                   className="py-4"
                 />
-                <div className="flex justify-between text-xs text-zinc-500">
+                <div className={cn("flex justify-between text-zinc-500", semanticTypography.hint)}>
                   <span>1 week</span>
                   <span>1 month</span>
                   <span>3 months</span>
@@ -211,7 +212,7 @@ export function ContentGenerationDialogEnhanced({
             </div>
 
             {/* Phase Description */}
-            <div className="space-y-2">
+            <div className="space-y-premium-xs">
               <Label htmlFor="phaseDescription" className="text-white">
                 Phase Description *
               </Label>
@@ -227,9 +228,9 @@ export function ContentGenerationDialogEnhanced({
             </div>
 
             {/* Posts Configuration */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-white flex items-center gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 space-premium-md">
+              <div className="space-y-premium-xs">
+                <Label className="text-white flex items-center space-premium-xs">
                   <Layers className="h-4 w-4" />
                   Posts per Day
                 </Label>
@@ -248,7 +249,7 @@ export function ContentGenerationDialogEnhanced({
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-premium-xs">
                 <Label className="text-white">Template Style</Label>
                 <Select
                   value={formData.templateStyle}
@@ -268,13 +269,13 @@ export function ContentGenerationDialogEnhanced({
 
             {/* Weekly Themes */}
             <div className="space-y-3">
-              <Label className="text-white flex items-center gap-2">
+              <Label className="text-white flex items-center space-premium-xs">
                 <Clock className="h-4 w-4" />
                 Weekly Themes ({calculateWeeks()} weeks)
               </Label>
-              <div className="space-y-2">
+              <div className="space-y-premium-xs">
                 {Array.from({ length: calculateWeeks() }, (_, i) => (
-                  <div key={i} className="flex items-center gap-2">
+                  <div key={i} className="flex items-center space-premium-xs">
                     <Badge 
                       variant="outline" 
                       className="border-zinc-700 text-zinc-400 min-w-[80px]"
@@ -293,9 +294,9 @@ export function ContentGenerationDialogEnhanced({
             </div>
 
             {/* Target Audience & Topics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="targetAudience" className="text-white flex items-center gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 space-premium-md">
+              <div className="space-y-premium-xs">
+                <Label htmlFor="targetAudience" className="text-white flex items-center space-premium-xs">
                   <Target className="h-4 w-4" />
                   Target Audience
                 </Label>
@@ -308,8 +309,8 @@ export function ContentGenerationDialogEnhanced({
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="keyTopics" className="text-white flex items-center gap-2">
+              <div className="space-y-premium-xs">
+                <Label htmlFor="keyTopics" className="text-white flex items-center space-premium-xs">
                   <Hash className="h-4 w-4" />
                   Key Topics
                 </Label>
@@ -327,12 +328,12 @@ export function ContentGenerationDialogEnhanced({
             <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-zinc-400">Total postcards to generate:</p>
-                  <p className="text-2xl font-bold text-emerald-500">{calculateTotalPosts()}</p>
+                  <p className={cn("text-zinc-400", semanticTypography.description)}>Total postcards to generate:</p>
+                  <p className={cn("text-emerald-500", "text-heading-2")}>{calculateTotalPosts()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-zinc-400">Campaign duration:</p>
-                  <p className="text-lg font-semibold text-white">{formData.duration} days</p>
+                  <p className={cn("text-zinc-400", semanticTypography.description)}>Campaign duration:</p>
+                  <p className={cn("text-white", "text-body-large")}>{formData.duration} days</p>
                 </div>
               </div>
             </div>

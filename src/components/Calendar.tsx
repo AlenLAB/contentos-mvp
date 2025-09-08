@@ -249,7 +249,7 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
   )
 
   return (
-    <div className="space-y-6 bg-zinc-900 min-h-screen p-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

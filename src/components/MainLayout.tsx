@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { SidebarNavigation } from "@/components/sidebar-navigation"
+import { NavigationCore } from "@/components/NavigationCore"
 import { ContentOSDashboard } from "@/components/contentos-dashboard"
 import { ContentCalendar } from "@/components/content-calendar"
 import { PostEditor } from "@/components/post-editor"
@@ -15,6 +15,8 @@ import { AIChatbot } from "@/components/ai-chatbot"
 import { AudienceAnalytics } from "@/components/audience-analytics"
 import { ContentDiscovery } from "@/components/content-discovery"
 import { AccessibilityMonitor } from "@/components/qc/accessibility-monitor"
+import { cn } from "@/lib/utils"
+import { semanticTypography } from "@/lib/typography"
 
 const onAction = (action: string, data?: any) => {
   console.log("[v0] Action triggered:", action, data)
@@ -135,10 +137,10 @@ export function MainLayout() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
         >
-          <div className="space-y-4 text-center">
+          <div className="space-y-premium-md text-center">
             <div className="animate-spin h-8 w-8 border-2 border-foreground border-t-transparent rounded-full mx-auto" />
             <p className="text-muted-foreground animate-pulse">Loading...</p>
-            <p className="text-xs text-muted-foreground/60">Press ESC to skip animation</p>
+            <p className={cn("text-muted-foreground/60", semanticTypography.hint)}>Press ESC to skip animation</p>
           </div>
         </motion.div>
       )
@@ -157,18 +159,18 @@ export function MainLayout() {
       audience: <AudienceAnalytics />,
       discovery: <ContentDiscovery />,
       settings: (
-        <div className="p-8">
-          <div className="max-w-md mx-auto text-center space-y-4">
+        <div className="padding-premium-2xl">
+          <div className="max-w-md mx-auto text-center space-y-premium-md">
             <div className="w-16 h-16 bg-card rounded-full mx-auto animate-pulse-subtle border border-border" />
-            <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+            <h1 className="text-heading-2 text-foreground">Settings</h1>
             <p className="text-muted-foreground">Configuration options coming soon</p>
           </div>
         </div>
       ),
       qc: (
-        <div className="p-8">
+        <div className="padding-premium-2xl">
           <div className="mb-6">
-            <h1 className="text-display font-bold text-foreground mb-2">Quality Control</h1>
+            <h1 className="text-display text-foreground mb-2">Quality Control</h1>
             <p className="text-body text-muted-foreground">
               Real-time monitoring and validation of ContentOS design system
             </p>
@@ -199,8 +201,9 @@ export function MainLayout() {
       <div className="dark">
         <div className="fixed inset-0 particles-bg gradient-mesh pointer-events-none" />
 
-        <div className="flex h-screen bg-zinc-900 text-white relative">
-          <SidebarNavigation
+        <div className="flex h-screen bg-background text-foreground relative">
+          <NavigationCore
+            variant="view-based"
             currentView={currentView}
             onViewChange={handleViewChange}
             isCollapsed={isSidebarCollapsed}
@@ -208,13 +211,17 @@ export function MainLayout() {
           />
 
           <div className="flex-1 flex flex-col">
-            <div className="flex h-16 items-center gap-4 border-b border-zinc-700 px-4 lg:hidden bg-zinc-900/80 backdrop-blur-xl">
-              <SidebarNavigation currentView={currentView} onViewChange={handleViewChange} />
-              <h1 className="text-lg font-semibold text-white">ContentOS</h1>
+            <div className="flex h-16 items-center space-premium-md border-b border-border padding-premium-md lg:hidden bg-background/80 backdrop-blur-xl">
+              <NavigationCore 
+                variant="view-based"
+                currentView={currentView} 
+                onViewChange={handleViewChange} 
+              />
+              <h1 className={cn("text-foreground", "text-heading-3")}>ContentOS</h1>
             </div>
 
             <main
-              className={`flex-1 overflow-auto bg-zinc-900 p-4 sm:p-6 relative transition-all duration-300 ${
+              className={`flex-1 overflow-auto bg-background padding-premium-md sm:padding-premium-lg relative transition-all duration-300 z-10 ${
                 isSidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
               }`}
             >
