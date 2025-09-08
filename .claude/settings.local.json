@@ -37,7 +37,8 @@
       "Bash(start browser-test.html)",
       "Bash(find:*)",
       "Bash(playwright open:*)",
-      "Bash(npx playwright:*)"
+      "Bash(npx playwright:*)",
+      "Bash(playwright --version)"
     ],
     "deny": [],
     "ask": []
