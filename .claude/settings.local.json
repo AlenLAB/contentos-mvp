@@ -38,7 +38,12 @@
       "Bash(find:*)",
       "Bash(playwright open:*)",
       "Bash(npx playwright:*)",
-      "Bash(playwright --version)"
+      "Bash(playwright --version)",
+      "Bash(gh:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git rm:*)",
+      "Bash(git filter-branch:*)"
     ],
     "deny": [],
     "ask": []
