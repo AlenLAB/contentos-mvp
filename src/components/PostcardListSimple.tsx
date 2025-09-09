@@ -68,7 +68,7 @@ export function PostcardListSimple() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="p-4 sm:p-6 min-h-screen flex items-center justify-center">
         <div className="text-zinc-400">Loading postcards...</div>
       </div>
     )
@@ -76,7 +76,7 @@ export function PostcardListSimple() {
 
   if (postcards.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+      <div className="p-4 sm:p-6 min-h-screen flex flex-col items-center justify-center space-y-4">
         <Layers className="h-12 w-12 text-zinc-600" />
         <p className="text-zinc-400">No postcards yet</p>
         <Button
@@ -91,16 +91,16 @@ export function PostcardListSimple() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6 min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Postcards</h1>
           <p className="text-zinc-500">Manage your content library</p>
         </div>
         <Button
           onClick={() => router.push('/generate')}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+          className="bg-emerald-500 hover:bg-emerald-600 text-white shrink-0"
         >
           <Plus className="h-4 w-4 mr-2" />
           Generate Content
@@ -108,7 +108,7 @@ export function PostcardListSimple() {
       </div>
 
       {/* Postcards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
         {postcards.map((postcard) => (
           <Card 
             key={postcard.id} 

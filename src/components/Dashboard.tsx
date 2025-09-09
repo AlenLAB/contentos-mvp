@@ -1,9 +1,23 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Calendar, CheckCircle, Edit, Sparkles, Plus, BarChart3 } from "lucide-react"
+import { 
+  FileText, 
+  Calendar, 
+  CheckCircle, 
+  Edit, 
+  Sparkles, 
+  Plus, 
+  BarChart3, 
+  TrendingUp, 
+  Clock, 
+  Target,
+  ArrowUpRight,
+  Activity
+} from "lucide-react"
 import { Card3D } from "@/components/ui/card-3d"
 import { cn } from "@/lib/utils"
+import { format } from "date-fns"
 
 interface DashboardProps {
   stats?: {
@@ -21,27 +35,51 @@ interface DashboardProps {
 }
 
 export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {}) {
-  // Use real data if provided, otherwise use mock data
+  // Calculate additional metrics
+  const today = new Date()
+  const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+  
+  const recentPostcards = postcards.filter(p => new Date(p.created_at) >= weekAgo)
+  const scheduledToday = postcards.filter(p => {
+    const created = new Date(p.created_at)
+    return format(created, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd') && p.state === 'scheduled'
+  })
+  
+  const completionRate = stats?.total ? Math.round(((stats.published + stats.scheduled) / stats.total) * 100) : 0
+  
+  // Enhanced stats with better metrics
   const dashboardStats = [
     {
-      title: "Total Postcards",
+      title: "Total Content",
       value: stats?.total?.toString() || "0",
+      subtitle: `${recentPostcards.length} this week`,
       icon: FileText,
-    },
-    {
-      title: "Scheduled",
-      value: stats?.scheduled?.toString() || "0",
-      icon: Calendar,
+      trend: recentPostcards.length > 0 ? "+12%" : "0%",
+      color: "text-blue-400"
     },
     {
       title: "Published",
       value: stats?.published?.toString() || "0",
+      subtitle: "Live content",
       icon: CheckCircle,
+      trend: "+8%",
+      color: "text-emerald-400"
     },
     {
-      title: "Drafts",
-      value: stats?.drafts?.toString() || "0",
-      icon: Edit,
+      title: "Scheduled",
+      value: stats?.scheduled?.toString() || "0",
+      subtitle: `${scheduledToday.length} today`,
+      icon: Clock,
+      trend: scheduledToday.length > 0 ? "Due today" : "None due",
+      color: "text-amber-400"
+    },
+    {
+      title: "Completion Rate",
+      value: `${completionRate}%`,
+      subtitle: "Goal progress",
+      icon: Target,
+      trend: completionRate >= 75 ? "On track" : "Behind",
+      color: completionRate >= 75 ? "text-emerald-400" : "text-orange-400"
     },
   ]
 
@@ -84,7 +122,7 @@ export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
-      <header className="border-b border-border bg-card/80 backdrop-blur-xl px-6 py-6 shadow-header">
+      <header className="border-b border-border bg-card/80 backdrop-blur-xl px-4 sm:px-6 py-4 sm:py-6 shadow-header">
         <div className="flex items-center justify-between">
           <div className="space-premium-xs">
             <h1 className="text-heading-2 text-foreground">ContentOS</h1>
@@ -104,10 +142,10 @@ export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {
       </header>
 
       {/* Main Content */}
-      <main className="p-6 lg:p-8">
-        <div className="mx-auto max-w-7xl space-premium-xl">
+      <main className="p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-7xl space-y-8">
           {/* Stats Grid */}
-          <div className="grid space-premium-lg md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {dashboardStats.map((stat, index) => {
               const Icon = stat.icon
               return (
@@ -115,22 +153,38 @@ export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {
                   key={stat.title}
                   variant="hero"
                   intensity={0.8}
-                  className={cn("animate-slide-up group cursor-pointer", index === 0 ? "" : index === 1 ? "animation-delay-100" : index === 2 ? "animation-delay-200" : "animation-delay-300")}
+                  className="animate-slide-up group cursor-pointer"
                 >
                   <Card className="glass-effect transition-premium bg-card border-border hover:bg-card/80 h-full">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                      <CardTitle className="text-caption text-muted-foreground">{stat.title}</CardTitle>
-                      <div className="rounded-lg bg-primary/10 p-2.5 transition-premium hover:bg-primary/20 group-hover:scale-110">
-                        <Icon className="h-5 w-5 text-primary" />
+                      <div className="space-y-1">
+                        <CardTitle className="text-sm text-muted-foreground font-medium">
+                          {stat.title}
+                        </CardTitle>
+                        <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+                      </div>
+                      <div className={cn("rounded-lg p-2.5 transition-all group-hover:scale-110", 
+                        stat.color === "text-blue-400" && "bg-blue-500/10",
+                        stat.color === "text-emerald-400" && "bg-emerald-500/10",
+                        stat.color === "text-amber-400" && "bg-amber-500/10",
+                        stat.color === "text-orange-400" && "bg-orange-500/10"
+                      )}>
+                        <Icon className={cn("h-5 w-5", stat.color)} />
                       </div>
                     </CardHeader>
-                    <CardContent className="space-premium-sm">
-                      <div className="text-display text-foreground">{stat.value}</div>
-                      <div className="mt-3 h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-1.5 rounded-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-1000 ease-out animate-progress-fill"
-                          style={{ width: `${(Number.parseInt(stat.value) / 14) * 100}%` }}
-                        ></div>
+                    <CardContent className="pt-0">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{stat.subtitle}</span>
+                        <div className="flex items-center gap-1">
+                          {stat.trend.includes('+') && <TrendingUp className="h-3 w-3 text-emerald-400" />}
+                          <span className={cn("text-xs font-medium",
+                            stat.trend.includes('+') ? "text-emerald-400" : 
+                            stat.trend.includes('Behind') ? "text-orange-400" :
+                            stat.trend.includes('Due today') ? "text-amber-400" : "text-zinc-400"
+                          )}>
+                            {stat.trend}
+                          </span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -139,60 +193,120 @@ export function ContentOSDashboard({ stats, postcards = [] }: DashboardProps = {
             })}
           </div>
 
-          <Card3D variant="standard" className="animate-slide-up animation-delay-500">
-            <Card className="glass-effect transition-premium bg-card border-border">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-heading-3 text-foreground">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col space-premium-md sm:flex-row sm:flex-wrap">
-                <Button className="btn-primary flex items-center space-premium-sm h-11 px-6 glass-effect hover-lift group relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <Sparkles className="h-4 w-4 transition-transform group-hover:rotate-12 relative z-10" />
-                  <span className="text-body relative z-10">Generate Phase Content</span>
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="flex items-center space-premium-sm h-11 px-6 glass-effect hover-lift group relative overflow-hidden border-border"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <Plus className="h-4 w-4 transition-transform group-hover:scale-110 relative z-10" />
-                  <span className="text-body relative z-10">Create New Post</span>
-                </Button>
-              </CardContent>
-            </Card>
-          </Card3D>
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card3D variant="standard" className="lg:col-span-2">
+              <Card className="glass-effect transition-premium bg-card border-border h-full">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg text-foreground">Quick Actions</CardTitle>
+                    <Activity className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Button className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-12 justify-start group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
+                    <Sparkles className="h-4 w-4 mr-3 transition-transform group-hover:rotate-12" />
+                    Generate Phase Content
+                  </Button>
+                  <Button variant="outline" className="border-zinc-700 text-zinc-200 hover:bg-zinc-800 h-12 justify-start group">
+                    <Plus className="h-4 w-4 mr-3 transition-transform group-hover:scale-110" />
+                    Create New Post
+                  </Button>
+                  <Button variant="outline" className="border-zinc-700 text-zinc-200 hover:bg-zinc-800 h-12 justify-start group">
+                    <Calendar className="h-4 w-4 mr-3" />
+                    View Calendar
+                  </Button>
+                  <Button variant="outline" className="border-zinc-700 text-zinc-200 hover:bg-zinc-800 h-12 justify-start group">
+                    <BarChart3 className="h-4 w-4 mr-3" />
+                    Analytics
+                  </Button>
+                </CardContent>
+              </Card>
+            </Card3D>
+            
+            {/* Today's Goals */}
+            <Card3D variant="standard">
+              <Card className="glass-effect transition-premium bg-card border-border h-full">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg text-foreground">Today's Goals</CardTitle>
+                    <Target className="h-5 w-5 text-emerald-400" />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Content Creation</span>
+                    <span className="text-sm font-medium text-foreground">2/3</span>
+                  </div>
+                  <div className="w-full bg-zinc-800 rounded-full h-2">
+                    <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '66%' }}></div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Publishing</span>
+                    <span className="text-sm font-medium text-foreground">1/2</span>
+                  </div>
+                  <div className="w-full bg-zinc-800 rounded-full h-2">
+                    <div className="bg-amber-500 h-2 rounded-full" style={{ width: '50%' }}></div>
+                  </div>
+                  
+                  <div className="pt-2 border-t border-zinc-700">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      <span>{format(today, 'EEEE, MMMM d')}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Card3D>
+          </div>
 
-          <Card3D variant="standard" className="animate-slide-up animation-delay-500">
+          {/* Recent Activity */}
+          <Card3D variant="standard">
             <Card className="glass-effect transition-premium bg-card border-border">
               <CardHeader className="pb-4">
-                <CardTitle className="text-heading-3 text-foreground">Recent Activity</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg text-foreground">Recent Activity</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-muted-foreground">Live</span>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="space-premium-md">
-                  {recentActivity.map((activity, index) => (
-                    <Card3D
-                      key={activity.id}
-                      variant="minimal"
-                      intensity={0.3}
-                      gloss={false}
-                      className={cn("animate-scale-in", index <= 1 ? "animation-delay-100" : index <= 3 ? "animation-delay-200" : "animation-delay-300")}
-                    >
-                      <div className="flex items-center justify-between rounded-lg border border-border bg-secondary p-5 transition-premium hover:shadow-card-hover cursor-pointer hover:bg-secondary/80">
-                        <div className="flex-1 space-premium-xs">
-                          <p className="text-body-small text-foreground">
-                            {activity.title.length > 50 ? `${activity.title.substring(0, 50)}...` : activity.title}
+                <div className="space-y-3">
+                  {recentActivity.length > 0 ? (
+                    recentActivity.map((activity, index) => (
+                      <div
+                        key={activity.id}
+                        className="flex items-center justify-between rounded-lg border border-zinc-700/50 bg-zinc-800/30 p-4 transition-all hover:bg-zinc-800/50 cursor-pointer"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-foreground truncate">
+                            {activity.title}
                           </p>
-                          <p className="text-caption text-muted-foreground">{activity.timeAgo}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <p className="text-xs text-muted-foreground">{activity.timeAgo}</p>
+                            <div className="w-1 h-1 bg-zinc-600 rounded-full"></div>
+                            <div className="flex items-center gap-1">
+                              {activity.state === 'published' && <CheckCircle className="w-3 h-3 text-emerald-400" />}
+                              {activity.state === 'scheduled' && <Clock className="w-3 h-3 text-amber-400" />}
+                              {activity.state === 'draft' && <Edit className="w-3 h-3 text-zinc-400" />}
+                              <span className="text-xs text-muted-foreground capitalize">{activity.state}</span>
+                            </div>
+                          </div>
                         </div>
-                        <Badge
-                          variant={getStateBadgeVariant(activity.state)}
-                          className="transition-premium hover:scale-105 text-caption px-3 py-1"
-                        >
-                          {activity.state}
-                        </Badge>
+                        <ArrowUpRight className="w-4 h-4 text-zinc-400 hover:text-zinc-200 transition-colors" />
                       </div>
-                    </Card3D>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Activity className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">No recent activity</p>
+                      <p className="text-xs text-zinc-600 mt-1">Start creating content to see activity here</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

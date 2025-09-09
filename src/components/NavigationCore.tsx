@@ -193,11 +193,12 @@ function NavigationContent({
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-glow-emerald">
               <Sparkles className="h-5 w-5" />
             </div>
-            {!isCollapsed && (
-              <div className="flex-1">
-                <h2 className="text-heading-3 text-white tracking-tight">ContentOS</h2>
-              </div>
-            )}
+            <div className={cn(
+              "flex-1 transition-all duration-300 ease-in-out overflow-hidden",
+              isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+            )}>
+              <h2 className="text-heading-3 text-white tracking-tight whitespace-nowrap">ContentOS</h2>
+            </div>
           </div>
 
           <Button
@@ -225,9 +226,9 @@ function NavigationContent({
                 "w-full space-premium-sm h-10 rounded-xl border border-transparent backdrop-blur-sm",
                 isActive
                   ? "active bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 text-white border-emerald-500/20 shadow-glow-emerald"
-                  : "border-transparent",
+                  : "border-transparent text-zinc-300 hover:text-zinc-200",
                 isCollapsed ? "justify-center px-2" : "justify-start px-4",
-                "flex items-center text-zinc-300"
+                "flex items-center transition-colors duration-200"
               )}
             >
               <Icon
@@ -238,7 +239,13 @@ function NavigationContent({
               />
               {!isCollapsed && (
                 <>
-                  <span className={cn("flex-1 text-left", semanticTypography.navItem)}>{item.name}</span>
+                  <span className={cn(
+                    "flex-1 text-left transition-colors duration-200",
+                    isActive ? "text-white font-medium" : "text-zinc-300",
+                    semanticTypography.navItem
+                  )}>
+                    {item.name}
+                  </span>
                   {item.badge && (
                     <Badge
                       variant="secondary"

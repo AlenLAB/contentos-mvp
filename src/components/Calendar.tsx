@@ -249,9 +249,9 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
   )
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 space-y-6 min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white">Content Calendar</h1>
@@ -333,8 +333,18 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
       {viewMode === "year" ? (
         renderYearView()
       ) : (
-        /* Calendar Grid */
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3 md:gap-4">
+        <div className="space-y-2">
+          {/* Day Headers */}
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 lg:gap-3 xl:gap-4">
+            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+              <div key={day} className="text-center text-xs sm:text-sm font-medium text-zinc-400 p-2">
+                {day}
+              </div>
+            ))}
+          </div>
+          
+          {/* Calendar Grid */}
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 lg:gap-3 xl:gap-4 overflow-x-auto min-w-full">
           {calendarDays.map((day, index) => {
             const dayPosts = getPostsForDate(day)
             const isCurrentDay = isToday(day)
@@ -449,6 +459,7 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
               </Card3D>
             )
           })}
+        </div>
         </div>
       )}
 

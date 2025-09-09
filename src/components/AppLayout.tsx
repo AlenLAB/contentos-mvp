@@ -1,22 +1,39 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavigationCore } from '@/components/NavigationCore'
-import { ParticleSystem } from '@/components/PremiumEffects'
+import { cn } from '@/lib/utils'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isLargeScreen, setIsLargeScreen] = useState(false)
+  
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024)
+    }
+    
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+    
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
   
   return (
     <div className="dark">
       <div className="flex h-screen bg-background">
-        <ParticleSystem />
         <NavigationCore 
           variant="app-router"
           isCollapsed={isCollapsed}
           onToggleCollapse={setIsCollapsed}
         />
-        <main className="flex-1 overflow-auto">
+        <main 
+          className={cn(
+            "flex-1 overflow-auto transition-all duration-300 ease-in-out",
+            isLargeScreen && isCollapsed && "lg:ml-16",
+            isLargeScreen && !isCollapsed && "lg:ml-64"
+          )}
+        >
           {children}
         </main>
       </div>
