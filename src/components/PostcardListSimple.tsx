@@ -130,11 +130,11 @@ export function PostcardListSimple() {
               {/* Content Preview */}
               <div className="space-y-2">
                 <p className="text-sm text-white line-clamp-3">
-                  {postcard.x_content || postcard.english_content}
+                  {postcard.english_content}
                 </p>
-                {(postcard.linkedin_content || postcard.swedish_content) && (
+                {postcard.swedish_content && (
                   <p className="text-xs text-zinc-500 italic line-clamp-2">
-                    LinkedIn: {postcard.linkedin_content || postcard.swedish_content}
+                    Swedish: {postcard.swedish_content}
                   </p>
                 )}
               </div>

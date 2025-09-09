@@ -43,12 +43,11 @@ interface ScheduledPost {
 interface ContentCalendarProps {
   postcards?: Array<{
     id: string
-    x_content: string
-    linkedin_content?: string
+    english_content: string
+    swedish_content?: string
     state: 'draft' | 'approved' | 'scheduled' | 'published'
     scheduled_date: Date | string | null
     created_at: Date | string
-    phase_id?: string | null
   }>
   onUpdatePostcard?: (id: string, updates: any) => void
   onDeletePostcard?: (id: string) => void
@@ -65,7 +64,7 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
     content: postcard.english_content,
     state: postcard.state,
     date: postcard.scheduled_date ? new Date(postcard.scheduled_date) : new Date(postcard.created_at),
-    platform: postcard.linkedin_content ? "both" : "twitter",
+    platform: postcard.swedish_content ? "both" : "twitter",
     engagement: postcard.state === 'published' ? Math.floor(Math.random() * 100) : 0
   }))
   
