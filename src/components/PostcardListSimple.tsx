@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { usePostcardStore } from '@/store/postcards'
-import { PostcardSplitView } from './PostcardSplitView'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
@@ -25,15 +24,13 @@ export function PostcardListSimple() {
   const router = useRouter()
   const { postcards, isLoading, fetchPostcards, deletePostcard } = usePostcardStore()
   const [selectedPostcard, setSelectedPostcard] = useState<any>(null)
-  const [splitViewOpen, setSplitViewOpen] = useState(false)
 
   useEffect(() => {
     fetchPostcards()
   }, [fetchPostcards])
 
   const handleEdit = (postcard: any) => {
-    setSelectedPostcard(postcard)
-    setSplitViewOpen(true)
+    router.push(`/editor/${postcard.id}`)
   }
 
   const handleDelete = async (id: string) => {
@@ -133,11 +130,11 @@ export function PostcardListSimple() {
               {/* Content Preview */}
               <div className="space-y-2">
                 <p className="text-sm text-white line-clamp-3">
-                  {postcard.english_content}
+                  {postcard.x_content || postcard.english_content}
                 </p>
-                {postcard.swedish_content && (
+                {(postcard.linkedin_content || postcard.swedish_content) && (
                   <p className="text-xs text-zinc-500 italic line-clamp-2">
-                    SE: {postcard.swedish_content}
+                    LinkedIn: {postcard.linkedin_content || postcard.swedish_content}
                   </p>
                 )}
               </div>
@@ -145,8 +142,8 @@ export function PostcardListSimple() {
               {/* Footer */}
               <div className="flex items-center justify-between pt-3 border-t border-zinc-800">
                 <div className="text-xs text-zinc-500">
-                  {postcard.scheduled_for 
-                    ? format(new Date(postcard.scheduled_for), 'MMM d, yyyy')
+                  {postcard.scheduled_date 
+                    ? format(new Date(postcard.scheduled_date), 'MMM d, yyyy')
                     : format(new Date(postcard.created_at), 'MMM d, yyyy')
                   }
                 </div>
@@ -193,14 +190,6 @@ export function PostcardListSimple() {
         ))}
       </div>
 
-      {/* Split View Modal */}
-      {selectedPostcard && (
-        <PostcardSplitView
-          postcard={selectedPostcard}
-          open={splitViewOpen}
-          onOpenChange={setSplitViewOpen}
-        />
-      )}
     </div>
   )
 }

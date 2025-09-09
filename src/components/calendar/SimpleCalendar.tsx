@@ -54,7 +54,7 @@ function PostcardCard({ postcard, isDragging, onDragStart, onDragEnd }: Postcard
               </Badge>
             </div>
             <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
-              {postcard.english_content}
+              {postcard.x_content}
             </p>
             {postcard.scheduled_date && (
               <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
@@ -160,7 +160,7 @@ function CalendarCell({ date, postcards, onDrop, isOver }: CalendarCellProps) {
                 {postcard.template}
               </Badge>
               <span className="truncate flex-1 text-gray-600 dark:text-gray-300">
-                {postcard.english_content}
+                {postcard.x_content}
               </span>
             </div>
           </div>

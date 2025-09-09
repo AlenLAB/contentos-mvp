@@ -24,7 +24,7 @@ export interface Database {
           id?: string
           created_at?: string
           updated_at?: string
-          // translation_status?: TranslationStatus // Uncomment after migration
+          translation_status?: TranslationStatus
         }
         Update: Partial<Omit<Postcard, 'id' | 'created_at'>> & {
           updated_at?: string
@@ -69,38 +69,11 @@ export const CONTENT_LIMITS = {
   },
 } as const
 
-// Type guard functions
+// Helper functions
 export function isValidPostState(state: string): state is PostState {
   return POST_STATES.includes(state as PostState)
 }
 
 export function isValidPostTemplate(template: string | null): template is PostTemplate {
   return POST_TEMPLATES.includes(template as PostTemplate)
-}
-
-// Content validation functions
-export function validateTwitterContent(content: string): {
-  isValid: boolean
-  length: number
-  remaining: number
-} {
-  const length = content.length
-  return {
-    isValid: length <= CONTENT_LIMITS.twitter.maxLength,
-    length,
-    remaining: CONTENT_LIMITS.twitter.maxLength - length,
-  }
-}
-
-export function validateLinkedInContent(content: string): {
-  isValid: boolean
-  length: number
-  remaining: number
-} {
-  const length = content.length
-  return {
-    isValid: length <= CONTENT_LIMITS.linkedin.maxLength,
-    length,
-    remaining: CONTENT_LIMITS.linkedin.maxLength - length,
-  }
 }

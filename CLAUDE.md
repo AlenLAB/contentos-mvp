@@ -167,3 +167,43 @@ The Zustand store implements optimistic updates:
 - **State Persistence**: Zustand store syncs with Supabase, no local storage needed
 - **Mobile First**: UI components designed for mobile-first responsiveness
 - **Dark Mode**: Fully supported via CSS variables and next-themes
+
+## Testing Infrastructure
+
+### Playwright Integration
+- **Playwright**: Configured for E2E testing with browser automation
+- **Test Files**: Uses `@playwright/test` for cross-browser testing
+- **Browser Support**: Chrome, Firefox, Safari, and Edge testing capabilities
+
+### Running Tests
+```bash
+# Install Playwright browsers (first time setup)
+npx playwright install
+
+# Run Playwright tests
+npx playwright test
+
+# Run tests in headed mode (visible browser)
+npx playwright test --headed
+
+# Run specific test file
+npx playwright test tests/example.spec.ts
+```
+
+## API Routes Structure
+
+The application uses Next.js 15 App Router API routes:
+
+### Core API Endpoints
+- **`/api/generate`** - AI content generation for bulk postcard creation
+- **`/api/translate`** - Individual content translation service
+- **`/api/translate-batch`** - Batch translation processing
+- **`/api/postcards`** - CRUD operations for postcard management
+- **`/api/postcards/[id]`** - Individual postcard operations
+- **`/api/generation-status`** - Check content generation progress
+- **`/api/test-ai`** - AI service health check and testing
+
+### Real-time Features
+- **Supabase Subscriptions**: Real-time postcard updates across clients
+- **Background Processing**: Batch translation with status tracking
+- **Optimistic Updates**: Immediate UI responses with database sync

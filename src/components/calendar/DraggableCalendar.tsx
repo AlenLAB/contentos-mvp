@@ -103,7 +103,7 @@ function DraggablePostcard({ postcard, onRemove }: DraggablePostcardProps) {
                 </Badge>
               </div>
               <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
-                {postcard.english_content}
+                {postcard.x_content}
               </p>
               <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
                 <Clock className="h-3 w-3" />

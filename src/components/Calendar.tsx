@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CardContent } from "@/components/ui/card"
 import { Card3D } from "@/components/ui/card-3d"
-import { Plus, Sparkles, GripVertical, TrendingUp, ChevronLeft, ChevronRight, Calendar, ZoomOut } from "lucide-react"
+import { Plus, Sparkles, GripVertical, TrendingUp, ChevronLeft, ChevronRight, Calendar, ZoomOut, Edit } from "lucide-react"
 import { ContentGenerationDialog } from "@/components/content-generation-dialog"
 
 interface ScheduledPost {
@@ -43,11 +43,12 @@ interface ScheduledPost {
 interface ContentCalendarProps {
   postcards?: Array<{
     id: string
-    english_content: string
-    swedish_content?: string
+    x_content: string
+    linkedin_content?: string
     state: 'draft' | 'approved' | 'scheduled' | 'published'
     scheduled_date: Date | string | null
     created_at: Date | string
+    phase_id?: string | null
   }>
   onUpdatePostcard?: (id: string, updates: any) => void
   onDeletePostcard?: (id: string) => void
@@ -56,6 +57,7 @@ interface ContentCalendarProps {
 export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePostcard }: ContentCalendarProps = {}) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isGenerationDialogOpen, setIsGenerationDialogOpen] = useState(false)
+  const [selectedPostcard, setSelectedPostcard] = useState<any>(null)
   
   // Convert postcards to ScheduledPost format
   const mappedPosts: ScheduledPost[] = postcards.map(postcard => ({
@@ -63,7 +65,7 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
     content: postcard.english_content,
     state: postcard.state,
     date: postcard.scheduled_date ? new Date(postcard.scheduled_date) : new Date(postcard.created_at),
-    platform: postcard.swedish_content ? "both" : "twitter",
+    platform: postcard.linkedin_content ? "both" : "twitter",
     engagement: postcard.state === 'published' ? Math.floor(Math.random() * 100) : 0
   }))
   
@@ -178,7 +180,14 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
     e.preventDefault()
     setDragOverDate(null)
 
-    if (draggedPost) {
+    if (draggedPost && onUpdatePostcard) {
+      // Update via store to persist changes
+      onUpdatePostcard(draggedPost.id, {
+        scheduled_date: targetDate,
+        state: 'scheduled'
+      })
+      
+      // Update local state for immediate UI feedback
       setPosts((prevPosts) =>
         prevPosts.map((post) => (post.id === draggedPost.id ? { ...post, date: targetDate } : post)),
       )
@@ -189,6 +198,11 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
   const handleDragEnd = () => {
     setDraggedPost(null)
     setDragOverDate(null)
+  }
+
+  const handleEditPostcard = (postcard: any) => {
+    // Navigate to edit page or handle edit
+    console.log('Edit postcard:', postcard)
   }
 
   const renderYearView = () => (
@@ -405,7 +419,7 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
                         {dayPosts.slice(0, 1).map((post) => (
                           <div
                             key={post.id}
-                            className={`space-y-2 cursor-move transition-all duration-300 ${draggedPost?.id === post.id ? "opacity-50" : ""}`}
+                            className={`space-y-2 cursor-move transition-all duration-300 group ${draggedPost?.id === post.id ? "opacity-50" : ""}`}
                             draggable
                             onDragStart={(e) => handleDragStart(e, post)}
                             onDragEnd={handleDragEnd}
@@ -423,6 +437,18 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
                                     {post.engagement}%
                                   </span>
                                 )}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    e.preventDefault()
+                                    const originalPostcard = postcards.find(p => p.id === post.id)
+                                    if (originalPostcard) handleEditPostcard(originalPostcard)
+                                  }}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-zinc-600 rounded"
+                                  title="Edit postcard"
+                                >
+                                  <Edit className="w-2.5 h-2.5 text-zinc-400 hover:text-white" />
+                                </button>
                                 <GripVertical className="w-3 h-3 text-zinc-400" />
                               </div>
                             </div>
@@ -465,6 +491,7 @@ export function ContentCalendar({ postcards = [], onUpdatePostcard, onDeletePost
 
       {/* Content Generation Dialog */}
       <ContentGenerationDialog open={isGenerationDialogOpen} onOpenChange={setIsGenerationDialogOpen} />
+
     </div>
   )
 }
