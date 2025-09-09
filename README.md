@@ -149,4 +149,4 @@ For issues or questions, please open a GitHub issue.
 
 Built with ❤️ using Next.js, TypeScript, and Tailwind CSS
 
-<!-- Deployment trigger: Force redeploy with critical UI fixes -->
+<!-- Deployment trigger: Force redeploy with critical UI fixes -->Deployment trigger Tue, Sep  9, 2025  2:38:25 PM
