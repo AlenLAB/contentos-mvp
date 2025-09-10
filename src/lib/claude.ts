@@ -44,6 +44,14 @@ export function validateApiKey(): boolean {
   return !!process.env.CLAUDE_API_KEY
 }
 
+interface PhaseData {
+  phaseTitle: string
+  phaseDescription: string
+  postsPerDay: number
+  duration: number
+  template: 'story' | 'tool' | 'mixed'
+}
+
 interface GeneratedContent {
   english_content: string
   swedish_content: string
@@ -51,51 +59,78 @@ interface GeneratedContent {
 }
 
 export async function generatePhaseContent(
-  description: string,
-  count: number = 1,
-  template: PostTemplate = null
+  params: PhaseData
 ): Promise<GeneratedContent[]> {
   try {
-    const templateInstructions = template 
-      ? `Use the "${template}" template format. ${
-          template === 'story' 
-            ? 'Create engaging personal stories or experiences.' 
-            : 'Share practical tools, tips, or resources.'
-        }`
-      : 'Create general social media content without a specific template.'
-
-    const systemPrompt = `You are a social media content expert specializing in creating engaging posts for Twitter/X and LinkedIn.
+    const totalPosts = params.duration * params.postsPerDay
     
-Your task is to generate ${count} social media post(s) based on the given description.
+    // Handle template instructions based on type
+    let templateInstructions = ''
+    let templateDistribution = ''
+    
+    if (params.template === 'story') {
+      templateInstructions = 'All posts should use the "story" template format - create engaging personal stories, experiences, and narrative-driven content that resonates emotionally.'
+    } else if (params.template === 'tool') {
+      templateInstructions = 'All posts should use the "tool" template format - share practical tools, tips, resources, and actionable advice that provides immediate value.'
+    } else if (params.template === 'mixed') {
+      templateInstructions = 'Alternate between "story" and "tool" template formats. Start with story posts for emotional engagement, then provide practical tools and tips. Mix these throughout the phase for variety.'
+      templateDistribution = `\n\nTemplate Distribution:
+- Approximately 50% story posts (personal experiences, narratives, emotional content)
+- Approximately 50% tool posts (practical tips, resources, actionable advice)
+- Alternate the templates naturally throughout the phase progression`
+    }
 
+    const systemPrompt = `You are a social media content expert specializing in creating engaging phase-based content campaigns for Twitter/X and LinkedIn.
+
+Your task is to generate ${totalPosts} social media posts for a complete phase titled "${params.phaseTitle}".
+
+PHASE CONTEXT:
+Title: ${params.phaseTitle}
+Description: ${params.phaseDescription}
+Duration: ${params.duration} days (${params.postsPerDay} post(s) per day)
+Total Posts: ${totalPosts}
+
+NARRATIVE PROGRESSION REQUIREMENTS:
+The posts must form a cohesive narrative journey across the entire phase:
+1. Early posts (first 25%): Introduce the theme, set context, build anticipation
+2. Middle posts (50%): Develop core concepts, share main insights, build momentum  
+3. Later posts (final 25%): Provide conclusions, key takeaways, call-to-action
+
+Each post should build upon previous ones while standing alone as valuable content.
+
+CONTENT REQUIREMENTS:
 For each post, create:
 1. English version for Twitter/X (MUST be 280 characters or less, including spaces and punctuation)
-2. Swedish version for LinkedIn (up to 3000 characters)
+2. Swedish version for LinkedIn (up to 3000 characters, more detailed and professional)
 
-${templateInstructions}
+${templateInstructions}${templateDistribution}
 
-Guidelines:
-- Twitter/X posts should be concise, punchy, and engaging
-- LinkedIn posts can be more detailed and professional
-- Maintain the same core message across both versions
-- Use appropriate hashtags for each platform
-- Ensure the Swedish translation is natural and culturally appropriate
+CONTENT GUIDELINES:
+- Maintain narrative coherence across all posts
+- Each post should feel like part of a larger story/journey
+- Twitter/X: Concise, punchy, engaging with appropriate hashtags
+- LinkedIn: More detailed, professional, educational with Swedish cultural context
+- Ensure authentic progression from beginning to end of phase
+- Avoid repetitive content - each post should offer unique value
+- Include relevant hashtags appropriate for each platform and language
 
-Return the response as a JSON array with exactly ${count} object(s), each containing:
+RESPONSE FORMAT:
+Return a JSON array with exactly ${totalPosts} objects, each containing:
 {
   "english_content": "Twitter/X post here (max 280 chars)",
-  "swedish_content": "LinkedIn post in Swedish here"
+  "swedish_content": "LinkedIn post in Swedish here (up to 3000 chars)",
+  "template_used": "story" or "tool"
 }`
 
     const message = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-latest',
-      max_tokens: 4000,
+      max_tokens: 8000, // Increased for larger content generation
       temperature: 0.7,
       system: systemPrompt,
       messages: [
         {
           role: 'user',
-          content: `Generate ${count} social media post(s) about: ${description}`,
+          content: `Generate all ${totalPosts} posts for the phase "${params.phaseTitle}" that will create a compelling content journey over ${params.duration} days. Ensure each post contributes to the overall narrative while providing individual value.`,
         },
       ],
     })
@@ -115,24 +150,38 @@ Return the response as a JSON array with exactly ${count} object(s), each contai
     const posts = JSON.parse(jsonMatch[0]) as Array<{
       english_content: string
       swedish_content: string
+      template_used?: 'story' | 'tool'
     }>
 
     // Validate and ensure character limits
-    return posts.map(post => {
+    return posts.map((post, index) => {
       // Trim Twitter content if it exceeds 280 characters
       const english_content = post.english_content.slice(0, 280)
       // Trim LinkedIn content if it exceeds 3000 characters
       const swedish_content = post.swedish_content.slice(0, 3000)
 
+      // Determine template for each post
+      let postTemplate: PostTemplate = null
+      if (params.template === 'mixed') {
+        // For mixed, use the template_used from response, or alternate if not specified
+        postTemplate = post.template_used === 'story' ? 'story' : 
+                      post.template_used === 'tool' ? 'tool' :
+                      (index % 2 === 0 ? 'story' : 'tool')
+      } else if (params.template === 'story') {
+        postTemplate = 'story'
+      } else if (params.template === 'tool') {
+        postTemplate = 'tool'
+      }
+
       return {
         english_content,
         swedish_content,
-        template,
+        template: postTemplate,
       }
     })
   } catch (error) {
-    console.error('Error generating content:', error)
-    throw new Error('Failed to generate content')
+    console.error('Error generating phase content:', error)
+    throw new Error('Failed to generate phase content')
   }
 }
 

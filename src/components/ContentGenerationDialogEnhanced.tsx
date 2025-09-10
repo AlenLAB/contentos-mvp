@@ -89,29 +89,35 @@ export function ContentGenerationDialogEnhanced({
     setState('loading')
     
     try {
-      // Generate content for the entire phase
-      const phaseContent = `
-        Phase: ${formData.phaseName}
-        Duration: ${formData.duration} days
-        Posts per day: ${formData.postsPerDay}
-        Total posts: ${calculateTotalPosts()}
-        
-        Description: ${formData.phaseDescription}
+      // Create enriched phase description with weekly themes and context
+      const enrichedDescription = `
+        ${formData.phaseDescription}
         
         Weekly Themes:
         ${formData.weeklyThemes.map((theme, i) => `Week ${i + 1}: ${theme}`).join('\n')}
         
         Target Audience: ${formData.targetAudience}
         Key Topics: ${formData.keyTopics}
-      `
+      `.trim()
       
-      // Generate posts using the store
-      await generatePhaseContent(
-        phaseContent,
-        calculateTotalPosts(),
-        formData.templateStyle === 'story-focused' ? 'story' : 
-        formData.templateStyle === 'tool-focused' ? 'tool' : null
-      )
+      // Map template style to the expected format
+      let template: 'story' | 'tool' | 'mixed'
+      if (formData.templateStyle === 'story-focused') {
+        template = 'story'
+      } else if (formData.templateStyle === 'tool-focused') {
+        template = 'tool'  
+      } else {
+        template = 'mixed'
+      }
+      
+      // Generate posts using the store with new PhaseData format
+      await generatePhaseContent({
+        phaseTitle: formData.phaseName,
+        phaseDescription: enrichedDescription,
+        postsPerDay: formData.postsPerDay,
+        duration: formData.duration,
+        template: template
+      })
       
       setState('success')
       toast.success(`Generated ${calculateTotalPosts()} postcards for ${formData.phaseName}`)
