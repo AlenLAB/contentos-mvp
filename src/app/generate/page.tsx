@@ -288,7 +288,7 @@ export default function GeneratePage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-6 pb-24">
             {/* Phase Overview Section */}
             <Card className="bg-zinc-900/50 border-zinc-800">
               <CardHeader>
@@ -325,8 +325,8 @@ export default function GeneratePage() {
                     value={formData.phaseDescription}
                     onChange={(e) => setFormData(prev => ({ ...prev, phaseDescription: e.target.value }))}
                     placeholder="Describe your content strategy for this phase. What story do you want to tell? What are your goals?"
-                    rows={4}
-                    className="bg-zinc-900 border-zinc-800 text-white mt-2"
+                    rows={3}
+                    className="bg-zinc-900 border-zinc-800 text-white mt-2 focus:rows-4"
                     disabled={isGenerating}
                     required
                   />
@@ -334,76 +334,77 @@ export default function GeneratePage() {
               </CardContent>
             </Card>
 
-            {/* Platform Personas Section */}
-            <Card className="bg-zinc-900/50 border-zinc-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <div className="flex gap-1">
-                    <Linkedin className="h-5 w-5 text-blue-500" />
-                    <Twitter className="h-5 w-5 text-blue-400" />
-                  </div>
-                  Platform Personas
-                </CardTitle>
-                <CardDescription className="text-zinc-400">
-                  Define your voice for each platform
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Label htmlFor="linkedinVoice" className="text-white flex items-center gap-2">
-                      <Linkedin className="h-4 w-4 text-blue-500" />
-                      LinkedIn Voice (Swedish)
-                    </Label>
-                    <Textarea
-                      id="linkedinVoice"
-                      value={formData.platformPersonas.linkedin}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        platformPersonas: { ...prev.platformPersonas, linkedin: e.target.value }
-                      }))}
-                      placeholder="Professional AI consultant, ROI-focused, speaking to Swedish e-commerce owners"
-                      rows={3}
-                      className="bg-zinc-900 border-zinc-800 text-white mt-2"
-                      disabled={isGenerating}
-                    />
-                  </div>
+            {/* Platform Personas + Duration Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4">
+              {/* Platform Personas - 60% width */}
+              <Card className="bg-zinc-900/50 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <div className="flex gap-1">
+                      <Linkedin className="h-5 w-5 text-blue-500" />
+                      <Twitter className="h-5 w-5 text-blue-400" />
+                    </div>
+                    Platform Personas
+                  </CardTitle>
+                  <CardDescription className="text-zinc-400">
+                    Define your voice for each platform
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="linkedinVoice" className="text-white flex items-center gap-2">
+                        <Linkedin className="h-4 w-4 text-blue-500" />
+                        LinkedIn Voice (Swedish)
+                      </Label>
+                      <Textarea
+                        id="linkedinVoice"
+                        value={formData.platformPersonas.linkedin}
+                        onChange={(e) => setFormData(prev => ({ 
+                          ...prev, 
+                          platformPersonas: { ...prev.platformPersonas, linkedin: e.target.value }
+                        }))}
+                        placeholder="Professional AI consultant, ROI-focused, speaking to Swedish e-commerce owners"
+                        rows={2}
+                        className="bg-zinc-900 border-zinc-800 text-white mt-2 focus:rows-3"
+                        disabled={isGenerating}
+                      />
+                    </div>
 
-                  <div>
-                    <Label htmlFor="xVoice" className="text-white flex items-center gap-2">
-                      <Twitter className="h-4 w-4 text-blue-400" />
-                      X Voice (English)
-                    </Label>
-                    <Textarea
-                      id="xVoice"
-                      value={formData.platformPersonas.x}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        platformPersonas: { ...prev.platformPersonas, x: e.target.value }
-                      }))}
-                      placeholder="Raw builder journey, honest about struggles, teaching while learning"
-                      rows={3}
-                      className="bg-zinc-900 border-zinc-800 text-white mt-2"
-                      disabled={isGenerating}
-                    />
+                    <div>
+                      <Label htmlFor="xVoice" className="text-white flex items-center gap-2">
+                        <Twitter className="h-4 w-4 text-blue-400" />
+                        X Voice (English)
+                      </Label>
+                      <Textarea
+                        id="xVoice"
+                        value={formData.platformPersonas.x}
+                        onChange={(e) => setFormData(prev => ({ 
+                          ...prev, 
+                          platformPersonas: { ...prev.platformPersonas, x: e.target.value }
+                        }))}
+                        placeholder="Raw builder journey, honest about struggles, teaching while learning"
+                        rows={2}
+                        className="bg-zinc-900 border-zinc-800 text-white mt-2 focus:rows-3"
+                        disabled={isGenerating}
+                      />
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Duration & Posts Section */}
-            <Card className="bg-zinc-900/50 border-zinc-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-emerald-500" />
-                  Duration & Frequency
-                </CardTitle>
-                <CardDescription className="text-zinc-400">
-                  Configure your publishing schedule
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Duration & Frequency - 40% width */}
+              <Card className="bg-zinc-900/50 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-emerald-500" />
+                    Duration & Frequency
+                  </CardTitle>
+                  <CardDescription className="text-zinc-400">
+                    Configure your publishing schedule
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <div>
                     <Label className="text-white flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
@@ -445,9 +446,9 @@ export default function GeneratePage() {
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Template & Instructions Section */}
             <Card className="bg-zinc-900/50 border-zinc-800">
@@ -460,7 +461,7 @@ export default function GeneratePage() {
                   Choose your content style and provide AI guidance
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <div>
                   <Label className="text-white">Template Style</Label>
                   <Select
@@ -488,8 +489,8 @@ export default function GeneratePage() {
                     value={formData.generationInstructions}
                     onChange={(e) => setFormData(prev => ({ ...prev, generationInstructions: e.target.value }))}
                     placeholder="e.g., Generate each day's content twice - Swedish for LinkedIn (professional, 500-1500 chars) and English for X (raw journey, max 280 chars)"
-                    rows={5}
-                    className="bg-zinc-900 border-zinc-800 text-white mt-2"
+                    rows={2}
+                    className="bg-zinc-900 border-zinc-800 text-white mt-2 focus:rows-5"
                     disabled={isGenerating}
                   />
                   <p className="text-zinc-500 text-sm mt-1">
@@ -510,68 +511,136 @@ export default function GeneratePage() {
                   Define the progression of your content phase
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {formData.weeklyThemes.slice(0, formData.hasWeek5 ? 5 : 4).map((theme, i) => (
-                  <Collapsible 
-                    key={i} 
-                    open={expandedWeeks[i] || false}
-                    onOpenChange={() => toggleWeekExpansion(i)}
-                  >
-                    <CollapsibleTrigger asChild>
-                      <div className="flex items-center justify-between w-full p-3 rounded-lg bg-zinc-800/50 border border-zinc-700 hover:bg-zinc-800/70 transition-colors cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <Badge 
-                            variant="outline" 
-                            className="border-zinc-600 text-zinc-300"
-                          >
-                            Week {i + 1}
-                          </Badge>
-                          <span className="text-white font-medium">
-                            {theme || `Theme for week ${i + 1}`}
-                          </span>
+              <CardContent>
+                {/* 2x2 Grid for Weeks 1-4 */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                  {formData.weeklyThemes.slice(0, 4).map((theme, i) => (
+                    <Collapsible 
+                      key={i} 
+                      open={expandedWeeks[i] || false}
+                      onOpenChange={() => toggleWeekExpansion(i)}
+                      className="bg-zinc-900/30 rounded-lg border border-zinc-800"
+                    >
+                      <CollapsibleTrigger asChild>
+                        <div className="flex items-center justify-between w-full p-3 hover:bg-zinc-800/50 transition-colors cursor-pointer rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              variant="outline" 
+                              className="border-zinc-600 text-zinc-300"
+                            >
+                              Week {i + 1}
+                            </Badge>
+                            <span className="text-white font-medium text-sm">
+                              {theme || `Theme for week ${i + 1}`}
+                            </span>
+                          </div>
+                          {expandedWeeks[i] ? (
+                            <ChevronDown className="h-4 w-4 text-zinc-400" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-zinc-400" />
+                          )}
                         </div>
-                        {expandedWeeks[i] ? (
-                          <ChevronDown className="h-4 w-4 text-zinc-400" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4 text-zinc-400" />
-                        )}
-                      </div>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="mt-2">
-                      <div className="space-y-3 p-4 bg-zinc-800/30 rounded-lg border border-zinc-700/50">
-                        <div>
-                          <Label htmlFor={`theme-${i}`} className="text-white">
-                            Week Theme {i < 4 ? '*' : ''}
-                          </Label>
-                          <Input
-                            id={`theme-${i}`}
-                            value={theme}
-                            onChange={(e) => updateWeeklyTheme(i, e.target.value)}
-                            placeholder={`Theme for week ${i + 1}`}
-                            className="bg-zinc-900 border-zinc-800 text-white mt-2"
-                            disabled={isGenerating}
-                            required={i < 4}
-                          />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="px-3 pb-3">
+                        <div className="space-y-2 pt-2 border-t border-zinc-700/50">
+                          <div>
+                            <Label htmlFor={`theme-${i}`} className="text-white text-sm">
+                              Week Theme {i < 4 ? '*' : ''}
+                            </Label>
+                            <Input
+                              id={`theme-${i}`}
+                              value={theme}
+                              onChange={(e) => updateWeeklyTheme(i, e.target.value)}
+                              placeholder={`Theme for week ${i + 1}`}
+                              className="bg-zinc-900 border-zinc-800 text-white mt-1 text-sm"
+                              disabled={isGenerating}
+                              required={i < 4}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`description-${i}`} className="text-white text-sm">
+                              What this week covers
+                            </Label>
+                            <Textarea
+                              id={`description-${i}`}
+                              value={formData.weeklyDescriptions[i] || ''}
+                              onChange={(e) => updateWeeklyDescription(i, e.target.value)}
+                              placeholder="Key topics, progression, and focus areas for this week"
+                              rows={2}
+                              className="bg-zinc-900 border-zinc-800 text-white mt-1 text-sm focus:rows-3"
+                              disabled={isGenerating}
+                            />
+                          </div>
                         </div>
-                        <div>
-                          <Label htmlFor={`description-${i}`} className="text-white">
-                            What this week covers
-                          </Label>
-                          <Textarea
-                            id={`description-${i}`}
-                            value={formData.weeklyDescriptions[i] || ''}
-                            onChange={(e) => updateWeeklyDescription(i, e.target.value)}
-                            placeholder="Key topics, progression, and focus areas for this week"
-                            rows={3}
-                            className="bg-zinc-900 border-zinc-800 text-white mt-2"
-                            disabled={isGenerating}
-                          />
-                        </div>
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ))}
+                </div>
 
+                {/* Week 5 (if enabled) */}
+                {formData.hasWeek5 && (
+                  <div className="mb-4">
+                    <Collapsible 
+                      open={expandedWeeks[4] || false}
+                      onOpenChange={() => toggleWeekExpansion(4)}
+                      className="bg-zinc-900/30 rounded-lg border border-zinc-800"
+                    >
+                      <CollapsibleTrigger asChild>
+                        <div className="flex items-center justify-between w-full p-3 hover:bg-zinc-800/50 transition-colors cursor-pointer rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              variant="outline" 
+                              className="border-zinc-600 text-zinc-300"
+                            >
+                              Week 5
+                            </Badge>
+                            <span className="text-white font-medium text-sm">
+                              {formData.weeklyThemes[4] || 'Theme for week 5'}
+                            </span>
+                          </div>
+                          {expandedWeeks[4] ? (
+                            <ChevronDown className="h-4 w-4 text-zinc-400" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-zinc-400" />
+                          )}
+                        </div>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="px-3 pb-3">
+                        <div className="space-y-2 pt-2 border-t border-zinc-700/50">
+                          <div>
+                            <Label htmlFor="theme-4" className="text-white text-sm">
+                              Week Theme
+                            </Label>
+                            <Input
+                              id="theme-4"
+                              value={formData.weeklyThemes[4] || ''}
+                              onChange={(e) => updateWeeklyTheme(4, e.target.value)}
+                              placeholder="Theme for week 5"
+                              className="bg-zinc-900 border-zinc-800 text-white mt-1 text-sm"
+                              disabled={isGenerating}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="description-4" className="text-white text-sm">
+                              What this week covers
+                            </Label>
+                            <Textarea
+                              id="description-4"
+                              value={formData.weeklyDescriptions[4] || ''}
+                              onChange={(e) => updateWeeklyDescription(4, e.target.value)}
+                              placeholder="Key topics, progression, and focus areas for this week"
+                              rows={2}
+                              className="bg-zinc-900 border-zinc-800 text-white mt-1 text-sm focus:rows-3"
+                              disabled={isGenerating}
+                            />
+                          </div>
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </div>
+                )}
+
+                {/* Add Week 5 Button */}
                 {!formData.hasWeek5 && (
                   <Button
                     type="button"
@@ -598,112 +667,41 @@ export default function GeneratePage() {
                   Define your audience and key content themes
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <Label htmlFor="targetAudience" className="text-white">
-                    Target Audience (Detailed)
-                  </Label>
-                  <Textarea
-                    id="targetAudience"
-                    value={formData.targetAudience}
-                    onChange={(e) => setFormData(prev => ({ ...prev, targetAudience: e.target.value }))}
-                    placeholder="Describe your audience for each platform. Who are they? What do they care about?"
-                    rows={3}
-                    className="bg-zinc-900 border-zinc-800 text-white mt-2"
-                    disabled={isGenerating}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="keyTopics" className="text-white">
-                    Content Topics & Themes
-                  </Label>
-                  <Textarea
-                    id="keyTopics"
-                    value={formData.keyTopics}
-                    onChange={(e) => setFormData(prev => ({ ...prev, keyTopics: e.target.value }))}
-                    placeholder="Main topics, technologies, concepts to cover throughout the phase"
-                    rows={3}
-                    className="bg-zinc-900 border-zinc-800 text-white mt-2"
-                    disabled={isGenerating}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Generation Preview */}
-            <Card className="bg-emerald-900/20 border-emerald-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-emerald-500" />
-                  Generation Preview
-                </CardTitle>
-              </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <p className="text-white text-lg">
-                    This will generate <span className="font-bold text-emerald-400">{calculateTotalPosts()} postcards</span> over{' '}
-                    <span className="font-bold text-emerald-400">{formData.duration} days</span>
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                      <Linkedin className="h-4 w-4 text-blue-500" />
-                      <span className="text-zinc-300">Swedish LinkedIn posts (professional)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                      <Twitter className="h-4 w-4 text-blue-400" />
-                      <span className="text-zinc-300">English X posts (personal journey)</span>
-                    </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="targetAudience" className="text-white">
+                      Target Audience (Detailed)
+                    </Label>
+                    <Textarea
+                      id="targetAudience"
+                      value={formData.targetAudience}
+                      onChange={(e) => setFormData(prev => ({ ...prev, targetAudience: e.target.value }))}
+                      placeholder="Describe your audience for each platform. Who are they? What do they care about?"
+                      rows={2}
+                      className="bg-zinc-900 border-zinc-800 text-white mt-2 focus:rows-3"
+                      disabled={isGenerating}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="keyTopics" className="text-white">
+                      Content Topics & Themes
+                    </Label>
+                    <Textarea
+                      id="keyTopics"
+                      value={formData.keyTopics}
+                      onChange={(e) => setFormData(prev => ({ ...prev, keyTopics: e.target.value }))}
+                      placeholder="Main topics, technologies, concepts to cover throughout the phase"
+                      rows={2}
+                      className="bg-zinc-900 border-zinc-800 text-white mt-2 focus:rows-3"
+                      disabled={isGenerating}
+                    />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-between">
-              <div className="flex gap-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push('/dashboard')}
-                  disabled={isGenerating}
-                  className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800"
-                >
-                  Cancel
-                </Button>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={saveAsTemplate}
-                  disabled={isGenerating}
-                  className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save as Template
-                </Button>
-              </div>
-              
-              <Button
-                type="submit"
-                disabled={isGenerating || isLoading}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white min-w-[200px]"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generating... {generationProgress}%
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Generate {calculateTotalPosts()} Posts
-                  </>
-                )}
-              </Button>
-            </div>
           </form>
 
           {/* Progress Indicator */}
@@ -751,6 +749,86 @@ export default function GeneratePage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Sticky Bottom Bar */}
+          <div className="fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur-sm border-t border-zinc-800 shadow-2xl z-50">
+            <div className="max-w-6xl mx-auto p-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Generation Preview */}
+                <div className="bg-emerald-900/20 border border-emerald-800/50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="h-4 w-4 text-emerald-500" />
+                    <h3 className="text-white font-semibold text-sm">Generation Preview</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-white text-sm">
+                      Generate <span className="font-bold text-emerald-400">{calculateTotalPosts()} postcards</span> over{' '}
+                      <span className="font-bold text-emerald-400">{formData.duration} days</span>
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 text-xs">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                        <Linkedin className="h-3 w-3 text-blue-500" />
+                        <span className="text-zinc-300">Swedish LinkedIn</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                        <Twitter className="h-3 w-3 text-blue-400" />
+                        <span className="text-zinc-300">English X</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-end justify-end">
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push('/dashboard')}
+                      disabled={isGenerating}
+                      className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                    >
+                      Cancel
+                    </Button>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={saveAsTemplate}
+                      disabled={isGenerating}
+                      className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                    >
+                      <Save className="h-3 w-3 mr-2" />
+                      Save
+                    </Button>
+                  </div>
+                  
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={isGenerating || isLoading || !formData.phaseTitle.trim() || !formData.phaseDescription.trim()}
+                    size="sm"
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white min-w-[140px]"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                        {generationProgress}%
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3 w-3 mr-2" />
+                        Generate {calculateTotalPosts()}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </AppLayout>
