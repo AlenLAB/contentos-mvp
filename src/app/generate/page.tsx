@@ -752,29 +752,27 @@ export default function GeneratePage() {
 
           {/* Sticky Bottom Bar */}
           <div className="fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur-sm border-t border-zinc-800 shadow-2xl z-50">
-            <div className="max-w-6xl mx-auto p-4">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="max-w-6xl mx-auto p-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {/* Generation Preview */}
-                <div className="bg-emerald-900/20 border border-emerald-800/50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="h-4 w-4 text-emerald-500" />
-                    <h3 className="text-white font-semibold text-sm">Generation Preview</h3>
+                <div className="bg-emerald-900/20 border border-emerald-800/50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="h-3 w-3 text-emerald-500" />
+                    <h3 className="text-white font-semibold text-xs">Generation Preview</h3>
                   </div>
-                  <div className="space-y-3">
-                    <p className="text-white text-sm">
+                  <div className="space-y-2">
+                    <p className="text-white text-xs">
                       Generate <span className="font-bold text-emerald-400">{calculateTotalPosts()} postcards</span> over{' '}
                       <span className="font-bold text-emerald-400">{formData.duration} days</span>
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-3 text-xs">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-500" />
+                    <div className="flex flex-row gap-4 text-xs">
+                      <div className="flex items-center gap-1">
                         <Linkedin className="h-3 w-3 text-blue-500" />
-                        <span className="text-zinc-300">Swedish LinkedIn</span>
+                        <span className="text-zinc-300">LinkedIn</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      <div className="flex items-center gap-1">
                         <Twitter className="h-3 w-3 text-blue-400" />
-                        <span className="text-zinc-300">English X</span>
+                        <span className="text-zinc-300">X</span>
                       </div>
                     </div>
                   </div>
