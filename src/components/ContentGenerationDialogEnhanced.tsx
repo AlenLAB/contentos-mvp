@@ -19,6 +19,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { cn } from '@/lib/utils'
 import { semanticTypography } from '@/lib/typography'
 import { 
@@ -30,7 +31,10 @@ import {
   Target,
   Layers,
   Clock,
-  Hash
+  Hash,
+  ChevronDown,
+  ChevronRight,
+  Settings
 } from 'lucide-react'
 import { usePostcardStore } from '@/store/postcards'
 import { toast } from 'sonner'
@@ -50,6 +54,7 @@ export function ContentGenerationDialogEnhanced({
   const [state, setState] = useState<DialogState>('setup')
   const [phaseType, setPhaseType] = useState<PhaseType>('days')
   const [errorMessage, setErrorMessage] = useState('')
+  const [expandedWeeks, setExpandedWeeks] = useState<boolean[]>([true, false, false, false])
   
   const generatePhaseContent = usePostcardStore((state) => state.generatePhaseContent)
   
@@ -61,11 +66,18 @@ export function ContentGenerationDialogEnhanced({
     templateStyle: 'mixed',
     targetAudience: '',
     keyTopics: '',
+    generationInstructions: '',
     weeklyThemes: [
       'Personal Story & Background',
       'Expertise & Skills',
       'Vision & Goals',
       'Call to Action & Engagement'
+    ],
+    weeklyDescriptions: [
+      '',
+      '',
+      '',
+      ''
     ]
   })
 
@@ -90,15 +102,27 @@ export function ContentGenerationDialogEnhanced({
     
     try {
       // Create enriched phase description with weekly themes and context
-      const enrichedDescription = `
+      const weeklyDetails = formData.weeklyThemes.map((theme, i) => {
+        const description = formData.weeklyDescriptions[i] || ''
+        return description 
+          ? `Week ${i + 1}: ${theme}\n  ${description}`
+          : `Week ${i + 1}: ${theme}`
+      }).join('\n\n')
+
+      let enrichedDescription = `
         ${formData.phaseDescription}
         
-        Weekly Themes:
-        ${formData.weeklyThemes.map((theme, i) => `Week ${i + 1}: ${theme}`).join('\n')}
+        Weekly Breakdown:
+        ${weeklyDetails}
         
         Target Audience: ${formData.targetAudience}
         Key Topics: ${formData.keyTopics}
       `.trim()
+
+      // Add generation instructions if provided
+      if (formData.generationInstructions.trim()) {
+        enrichedDescription += `\n\nSpecial Generation Instructions:\n${formData.generationInstructions}`
+      }
       
       // Map template style to the expected format
       let template: 'story' | 'tool' | 'mixed'
@@ -136,12 +160,47 @@ export function ContentGenerationDialogEnhanced({
   const updateWeeklyTheme = (index: number, value: string) => {
     const newThemes = [...formData.weeklyThemes]
     newThemes[index] = value
-    setFormData(prev => ({ ...prev, weeklyThemes: newThemes }))
+    
+    // Ensure weeklyDescriptions array matches the length
+    const newDescriptions = [...formData.weeklyDescriptions]
+    while (newDescriptions.length <= index) {
+      newDescriptions.push('')
+    }
+    
+    setFormData(prev => ({ 
+      ...prev, 
+      weeklyThemes: newThemes,
+      weeklyDescriptions: newDescriptions
+    }))
+  }
+
+  const updateWeeklyDescription = (index: number, value: string) => {
+    const newDescriptions = [...formData.weeklyDescriptions]
+    
+    // Ensure array is long enough
+    while (newDescriptions.length <= index) {
+      newDescriptions.push('')
+    }
+    
+    newDescriptions[index] = value
+    setFormData(prev => ({ ...prev, weeklyDescriptions: newDescriptions }))
+  }
+
+  const toggleWeekExpansion = (index: number) => {
+    const newExpanded = [...expandedWeeks]
+    
+    // Ensure array is long enough
+    while (newExpanded.length <= index) {
+      newExpanded.push(false)
+    }
+    
+    newExpanded[index] = !newExpanded[index]
+    setExpandedWeeks(newExpanded)
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-zinc-950 border-zinc-800 text-white">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-zinc-950 border-zinc-800 text-white">
         <DialogHeader>
           <DialogTitle className={cn("flex items-center space-premium-xs", semanticTypography.sectionTitle)}>
             <Sparkles className="h-5 w-5 text-emerald-500" />
@@ -273,6 +332,31 @@ export function ContentGenerationDialogEnhanced({
               </div>
             </div>
 
+            {/* Section Divider */}
+            <div className="border-t border-zinc-800 my-6"></div>
+
+            {/* Generation Instructions */}
+            <div className="space-y-premium-xs">
+              <Label htmlFor="generationInstructions" className="text-white flex items-center space-premium-xs">
+                <Settings className="h-4 w-4" />
+                Special Instructions for AI
+              </Label>
+              <Textarea
+                id="generationInstructions"
+                value={formData.generationInstructions}
+                onChange={(e) => setFormData(prev => ({ ...prev, generationInstructions: e.target.value }))}
+                placeholder="e.g., Generate each day's content twice - Swedish for LinkedIn (professional, 500-1500 chars) and English for X (raw journey, max 280 chars)"
+                rows={5}
+                className="bg-zinc-900 border-zinc-800 text-white"
+              />
+              <p className={cn("text-zinc-500", semanticTypography.hint)}>
+                Provide specific guidance for AI generation, including platform requirements, tone, or format preferences
+              </p>
+            </div>
+
+            {/* Section Divider */}
+            <div className="border-t border-zinc-800 my-6"></div>
+
             {/* Weekly Themes */}
             <div className="space-y-3">
               <Label className="text-white flex items-center space-premium-xs">
@@ -281,36 +365,81 @@ export function ContentGenerationDialogEnhanced({
               </Label>
               <div className="space-y-premium-xs">
                 {Array.from({ length: calculateWeeks() }, (_, i) => (
-                  <div key={i} className="flex items-center space-premium-xs">
-                    <Badge 
-                      variant="outline" 
-                      className="border-zinc-700 text-zinc-400 min-w-[80px]"
-                    >
-                      Week {i + 1}
-                    </Badge>
-                    <Input
-                      value={formData.weeklyThemes[i] || ''}
-                      onChange={(e) => updateWeeklyTheme(i, e.target.value)}
-                      placeholder={`Theme for week ${i + 1}`}
-                      className="bg-zinc-900 border-zinc-800 text-white"
-                    />
-                  </div>
+                  <Collapsible 
+                    key={i} 
+                    open={expandedWeeks[i] || false}
+                    onOpenChange={() => toggleWeekExpansion(i)}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <div className="flex items-center justify-between w-full p-3 rounded-lg bg-zinc-900/50 border border-zinc-800 hover:bg-zinc-900/70 transition-colors cursor-pointer">
+                        <div className="flex items-center space-premium-xs">
+                          <Badge 
+                            variant="outline" 
+                            className="border-zinc-700 text-zinc-400"
+                          >
+                            Week {i + 1}
+                          </Badge>
+                          <span className="text-white font-medium">
+                            {formData.weeklyThemes[i] || `Theme for week ${i + 1}`}
+                          </span>
+                        </div>
+                        {expandedWeeks[i] ? (
+                          <ChevronDown className="h-4 w-4 text-zinc-400" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-zinc-400" />
+                        )}
+                      </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-2">
+                      <div className="space-y-3 p-4 bg-zinc-900/30 rounded-lg border border-zinc-800/50">
+                        <div className="space-y-premium-xs">
+                          <Label htmlFor={`theme-${i}`} className="text-white">
+                            Week Theme
+                          </Label>
+                          <Input
+                            id={`theme-${i}`}
+                            value={formData.weeklyThemes[i] || ''}
+                            onChange={(e) => updateWeeklyTheme(i, e.target.value)}
+                            placeholder={`Theme for week ${i + 1}`}
+                            className="bg-zinc-900 border-zinc-800 text-white"
+                          />
+                        </div>
+                        <div className="space-y-premium-xs">
+                          <Label htmlFor={`description-${i}`} className="text-white">
+                            What this week covers
+                          </Label>
+                          <Textarea
+                            id={`description-${i}`}
+                            value={formData.weeklyDescriptions[i] || ''}
+                            onChange={(e) => updateWeeklyDescription(i, e.target.value)}
+                            placeholder="Key topics, progression, and focus areas for this week"
+                            rows={3}
+                            className="bg-zinc-900 border-zinc-800 text-white"
+                          />
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 ))}
               </div>
             </div>
 
+            {/* Section Divider */}
+            <div className="border-t border-zinc-800 my-6"></div>
+
             {/* Target Audience & Topics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 space-premium-md">
+            <div className="space-y-premium-lg">
               <div className="space-y-premium-xs">
                 <Label htmlFor="targetAudience" className="text-white flex items-center space-premium-xs">
                   <Target className="h-4 w-4" />
-                  Target Audience
+                  Target Audience (Detailed)
                 </Label>
-                <Input
+                <Textarea
                   id="targetAudience"
                   value={formData.targetAudience}
                   onChange={(e) => setFormData(prev => ({ ...prev, targetAudience: e.target.value }))}
-                  placeholder="e.g., AI-first founders, Digital nomads"
+                  placeholder="Describe your audience for each platform. Who are they? What do they care about?"
+                  rows={3}
                   className="bg-zinc-900 border-zinc-800 text-white"
                 />
               </div>
@@ -318,17 +447,21 @@ export function ContentGenerationDialogEnhanced({
               <div className="space-y-premium-xs">
                 <Label htmlFor="keyTopics" className="text-white flex items-center space-premium-xs">
                   <Hash className="h-4 w-4" />
-                  Key Topics
+                  Content Topics & Themes
                 </Label>
-                <Input
+                <Textarea
                   id="keyTopics"
                   value={formData.keyTopics}
                   onChange={(e) => setFormData(prev => ({ ...prev, keyTopics: e.target.value }))}
-                  placeholder="AI, Personal Brand, Digital Strategy"
+                  placeholder="Main topics, technologies, concepts to cover throughout the phase"
+                  rows={3}
                   className="bg-zinc-900 border-zinc-800 text-white"
                 />
               </div>
             </div>
+
+            {/* Section Divider */}
+            <div className="border-t border-zinc-800 my-6"></div>
 
             {/* Summary */}
             <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
