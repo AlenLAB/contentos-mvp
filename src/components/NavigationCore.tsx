@@ -53,7 +53,7 @@ const navigationItems = [
     name: 'All Posts',
     href: '/postcards',
     icon: FileText,
-    badge: '14',
+    badge: null,
   },
   {
     id: 'editor',
