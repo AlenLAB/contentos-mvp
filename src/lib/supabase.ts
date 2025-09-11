@@ -4,14 +4,10 @@ import type { Database } from '@/types/database'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-// Only throw error at runtime, not during build
-const createSupabaseClient = () => {
+// Create Supabase client with lazy initialization (similar to Claude pattern)
+function createSupabaseClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
-    if (typeof window !== 'undefined') {
-      console.error('Missing Supabase environment variables')
-    }
-    // Return a dummy client during build
-    return null as any
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set in environment variables')
   }
   
   return createClient<Database>(supabaseUrl, supabaseAnonKey, {
@@ -22,7 +18,20 @@ const createSupabaseClient = () => {
   })
 }
 
-export const supabase = createSupabaseClient()
+// Function to get Supabase client instance
+export function getSupabaseClient() {
+  return createSupabaseClient()
+}
+
+// Keep the old export for backward compatibility but create client lazily
+export const supabase = (() => {
+  try {
+    return createSupabaseClient()
+  } catch {
+    // Return null during build/server initialization when env vars might not be available
+    return null as any
+  }
+})()
 
 // Helper function to handle Supabase errors
 export function handleSupabaseError(error: any) {

@@ -179,19 +179,42 @@ export const usePostcardStore = create<PostcardStore>()(
       })
 
       try {
+        const reqId = `cli_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
         const response = await fetch('/api/generate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-request-id': reqId,
           },
           body: JSON.stringify(phaseData),
         })
 
         if (!response.ok) {
-          throw new Error('Failed to generate content')
+          // Try to get detailed error from response
+          let errorDetails = 'Failed to generate content'
+          try {
+            const errorData = await response.json()
+            errorDetails = errorData.error || errorData.details || `HTTP ${response.status}: ${response.statusText}`
+          } catch {
+            errorDetails = `HTTP ${response.status}: ${response.statusText}`
+          }
+          console.error('[store][generatePhaseContent] API error:', {
+            requestId: reqId,
+            status: response.status,
+            statusText: response.statusText,
+            error: errorDetails
+          })
+          throw new Error(errorDetails)
         }
 
         const result = await response.json()
+        console.log('[store][generatePhaseContent] API success:', {
+          requestId: reqId,
+          status: response.status,
+          inserted: result?.metadata?.insertedCount,
+          generated: result?.metadata?.generatedCount,
+          failures: result?.metadata?.failureCount,
+        })
         
         if (result.success && result.postcards) {
           // Add generated postcards to the store
@@ -201,7 +224,18 @@ export const usePostcardStore = create<PostcardStore>()(
           })
         }
       } catch (error) {
-        console.error('Error generating phase content:', error)
+        console.error('[store][generatePhaseContent] Generation failed:', {
+          error: error instanceof Error ? error.message : error,
+          stack: error instanceof Error ? error.stack : undefined,
+          requestId: reqId,
+          phaseData: {
+            title: phaseData.phaseTitle,
+            descriptionLength: phaseData.phaseDescription?.length || 0,
+            postsPerDay: phaseData.postsPerDay,
+            duration: phaseData.duration,
+            template: phaseData.template
+          }
+        })
         set((state) => {
           state.error = error instanceof Error ? error.message : 'Failed to generate content'
           state.isLoading = false
