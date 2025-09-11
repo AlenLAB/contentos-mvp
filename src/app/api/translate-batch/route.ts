@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { anthropic, validateApiKey } from '@/lib/claude'
+import createAnthropicClient, { validateApiKey } from '@/lib/claude'
 import { supabase } from '@/lib/supabase'
 
 interface BatchTranslateRequest {
@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
         ).join('\n\n')
 
         // Call Claude for batch translation
+        const anthropic = createAnthropicClient()
         const response = await anthropic.messages.create({
           model: 'claude-3-5-sonnet-latest',
           max_tokens: 8000,

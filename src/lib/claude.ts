@@ -58,9 +58,6 @@ function createAnthropicClient(): Anthropic {
 // Default export for backward compatibility - just the function
 export default createAnthropicClient
 
-// Export an anthropic instance for direct use
-export const anthropic = createAnthropicClient()
-
 // Export types for convenience
 export type { 
   Message,
@@ -212,22 +209,43 @@ RESPONSE FORMAT - EXACTLY THIS:
       console.error('❌ JSON Parse Error:', parseError)
       console.error('❌ Problematic JSON string:', jsonString)
       
-      // Try to clean and retry
+      // Try multiple cleaning strategies
       try {
-        const cleanedJson = jsonString
+        // Strategy 1: Basic control character removal
+        let cleanedJson = jsonString
           .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')  // Remove control chars
           .replace(/\n/g, ' ')  // Replace newlines with spaces
           .replace(/\r/g, '')   // Remove carriage returns
           .replace(/\t/g, ' ')  // Replace tabs with spaces
         
         if (isDebug) {
-          console.log('🔧 Debug: Cleaned JSON attempt:', cleanedJson.substring(0, 200))
+          console.log('🔧 Debug: Strategy 1 - Basic cleaning:', cleanedJson.substring(0, 200))
         }
         
-        posts = JSON.parse(cleanedJson)
+        try {
+          posts = JSON.parse(cleanedJson)
+        } catch (thirdError) {
+          // Strategy 2: More aggressive cleaning
+          cleanedJson = jsonString
+            .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')  // Remove control chars
+            .replace(/\n/g, '\\n')   // Escape newlines properly
+            .replace(/\r/g, '\\r')   // Escape carriage returns
+            .replace(/\t/g, '\\t')   // Escape tabs properly
+            .replace(/\\/g, '\\\\')  // Escape backslashes
+            .replace(/"/g, '\\"')    // Escape quotes that aren't part of JSON structure
+            .replace(/\\"/g, '"')    // Fix over-escaped quotes in JSON structure
+            .replace(/\\\\\"/g, '\\"') // Fix double-escaped quotes
+          
+          if (isDebug) {
+            console.log('🔧 Debug: Strategy 2 - Aggressive cleaning:', cleanedJson.substring(0, 200))
+          }
+          
+          posts = JSON.parse(cleanedJson)
+        }
       } catch (secondError) {
-        console.error('❌ Second parse attempt failed:', secondError)
-        throw new Error(`Failed to parse JSON response: ${parseError}`)
+        console.error('❌ All parsing strategies failed:', secondError)
+        console.error('❌ Original error:', parseError)
+        throw new Error(`Failed to parse JSON response after cleaning attempts: ${parseError}`)
       }
     }
 
