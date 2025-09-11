@@ -752,58 +752,50 @@ export default function GeneratePage() {
 
           {/* Sticky Bottom Bar */}
           <div className="fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur-sm border-t border-zinc-800 shadow-2xl z-50">
-            <div className="max-w-6xl mx-auto p-3">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {/* Generation Preview */}
-                <div className="bg-emerald-900/20 border border-emerald-800/50 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-2">
+            <div className="max-w-6xl mx-auto px-4 py-2">
+              <div className="flex items-center justify-between">
+                {/* Generation Preview - Horizontal Layout */}
+                <div className="flex items-center gap-6 text-xs text-white">
+                  <div className="flex items-center gap-2">
                     <Sparkles className="h-3 w-3 text-emerald-500" />
-                    <h3 className="text-white font-semibold text-xs">Generation Preview</h3>
+                    <span>Generate <span className="font-bold text-emerald-400">{calculateTotalPosts()} postcards</span> over <span className="font-bold text-emerald-400">{formData.duration} days</span></span>
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-white text-xs">
-                      Generate <span className="font-bold text-emerald-400">{calculateTotalPosts()} postcards</span> over{' '}
-                      <span className="font-bold text-emerald-400">{formData.duration} days</span>
-                    </p>
-                    <div className="flex flex-row gap-4 text-xs">
-                      <div className="flex items-center gap-1">
-                        <Linkedin className="h-3 w-3 text-blue-500" />
-                        <span className="text-zinc-300">LinkedIn</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Twitter className="h-3 w-3 text-blue-400" />
-                        <span className="text-zinc-300">X</span>
-                      </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1">
+                      <Linkedin className="h-3 w-3 text-blue-500" />
+                      <span className="text-zinc-300">LinkedIn</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Twitter className="h-3 w-3 text-blue-400" />
+                      <span className="text-zinc-300">X</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-end justify-end">
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => router.push('/dashboard')}
-                      disabled={isGenerating}
-                      className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800"
-                    >
-                      Cancel
-                    </Button>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={saveAsTemplate}
-                      disabled={isGenerating}
-                      className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800"
-                    >
-                      <Save className="h-3 w-3 mr-2" />
-                      Save
-                    </Button>
-                  </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/dashboard')}
+                    disabled={isGenerating}
+                    className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  >
+                    Cancel
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={saveAsTemplate}
+                    disabled={isGenerating}
+                    className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  >
+                    <Save className="h-3 w-3 mr-2" />
+                    Save
+                  </Button>
                   
                   <Button
                     onClick={handleSubmit}
