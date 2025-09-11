@@ -58,6 +58,9 @@ function createAnthropicClient(): Anthropic {
 // Default export for backward compatibility - just the function
 export default createAnthropicClient
 
+// Export an anthropic instance for direct use
+export const anthropic = createAnthropicClient()
+
 // Export types for convenience
 export type { 
   Message,
@@ -164,7 +167,7 @@ RESPONSE FORMAT - EXACTLY THIS:
 ]`
 
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022', // Updated model name
+      model: 'claude-3-5-sonnet-latest', // Updated model name
       max_tokens: 8000,
       temperature: 0.7,
       system: systemPrompt,
@@ -293,7 +296,7 @@ export async function translateToSwedish(englishText: string): Promise<string> {
   
   try {
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022', // Updated model name
+      model: 'claude-3-5-sonnet-latest', // Updated model name
       max_tokens: 4000,
       temperature: 0.3,
       system: `You are a professional translator specializing in English to Swedish translations for social media content.
