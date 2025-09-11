@@ -51,7 +51,9 @@
       "Bash(git pull:*)",
       "Bash(git stash:*)",
       "Bash(git tag:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []
