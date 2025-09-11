@@ -47,7 +47,11 @@
       "Bash(git reflog:*)",
       "Bash(git gc:*)",
       "Read(//c/Users/Alen/.claude/**)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(git tag:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

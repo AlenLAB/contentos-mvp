@@ -1,32 +1,62 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { PostTemplate } from '@/types/database'
 
-// Create a function to lazily initialize the Anthropic client
-const createAnthropicClient = () => {
+// Utility function to clean control characters from JSON strings
+function sanitizeJsonString(str: string): string {
+  // Remove or escape control characters that break JSON parsing
+  return str
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+    .replace(/\n/g, '\\n')     // Escape newlines
+    .replace(/\r/g, '\\r')     // Escape carriage returns
+    .replace(/\t/g, '\\t')     // Escape tabs
+    .replace(/\\/g, '\\\\')    // Escape backslashes
+    .replace(/"/g, '\\"')      // Escape quotes
+}
+
+// Utility function to extract and clean JSON from Claude response
+function extractJsonFromResponse(text: string): string | null {
+  // Try multiple patterns to find JSON array
+  const patterns = [
+    /\[\s*\{[\s\S]*?\}\s*\]/g,           // Standard JSON array
+    /```json\s*(\[[\s\S]*?\])\s*```/g,   // JSON in code blocks
+    /```\s*(\[[\s\S]*?\])\s*```/g,       // JSON in generic code blocks
+  ]
+  
+  for (const pattern of patterns) {
+    const matches = text.match(pattern)
+    if (matches) {
+      // Return the first match, cleaned of markdown
+      return matches[0].replace(/```json|```/g, '').trim()
+    }
+  }
+  
+  // Fallback: try to find any array structure
+  const arrayStart = text.indexOf('[')
+  const arrayEnd = text.lastIndexOf(']')
+  if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
+    return text.substring(arrayStart, arrayEnd + 1)
+  }
+  
+  return null
+}
+
+// Create Anthropic client with lazy initialization
+function createAnthropicClient(): Anthropic {
   const apiKey = process.env.CLAUDE_API_KEY
   
-  // During build or when API key is missing, return a dummy client
   if (!apiKey) {
-    if (typeof window !== 'undefined') {
-      console.error('CLAUDE_API_KEY is not set. Please add it to your environment variables.')
-    }
-    // Return null during build to prevent errors
-    return null as any
+    throw new Error('CLAUDE_API_KEY is not set in environment variables')
   }
   
   return new Anthropic({
     apiKey,
-    // Optional: Add custom configuration
-    maxRetries: 2,
-    timeout: 60000, // 60 seconds
+    maxRetries: 3,
+    timeout: 120000, // 2 minutes for generation
   })
 }
 
-// Create and configure the Anthropic client with error handling
-const anthropic = createAnthropicClient()
-
-// Export the client instance for use in API routes
-export default anthropic
+// Default export for backward compatibility - just the function
+export default createAnthropicClient
 
 // Export types for convenience
 export type { 
@@ -61,8 +91,16 @@ interface GeneratedContent {
 export async function generatePhaseContent(
   params: PhaseData
 ): Promise<GeneratedContent[]> {
+  // Create client with lazy initialization
+  const anthropic = createAnthropicClient()
+  const isDebug = process.env.CLAUDE_DEBUG === 'true'
+  
   try {
     const totalPosts = params.duration * params.postsPerDay
+    
+    if (isDebug) {
+      console.log('🔧 Debug: Generating', totalPosts, 'posts for phase:', params.phaseTitle)
+    }
     
     // Handle template instructions based on type
     let templateInstructions = ''
@@ -114,23 +152,26 @@ CONTENT GUIDELINES:
 - Avoid repetitive content - each post should offer unique value
 - Include relevant hashtags appropriate for each platform and language
 
-RESPONSE FORMAT:
-Return a JSON array with exactly ${totalPosts} objects, each containing:
-{
-  "english_content": "Twitter/X post here (max 280 chars)",
-  "swedish_content": "LinkedIn post in Swedish here (up to 3000 chars)",
-  "template_used": "story" or "tool"
-}`
+CRITICAL: Return ONLY a clean JSON array. No markdown, no explanations, no extra text.
+
+RESPONSE FORMAT - EXACTLY THIS:
+[
+  {
+    "english_content": "Twitter/X post here (max 280 chars)",
+    "swedish_content": "LinkedIn post in Swedish here (up to 3000 chars)",
+    "template_used": "story"
+  }
+]`
 
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-latest',
-      max_tokens: 8000, // Increased for larger content generation
+      model: 'claude-3-5-sonnet-20241022', // Updated model name
+      max_tokens: 8000,
       temperature: 0.7,
       system: systemPrompt,
       messages: [
         {
           role: 'user',
-          content: `Generate all ${totalPosts} posts for the phase "${params.phaseTitle}" that will create a compelling content journey over ${params.duration} days. Ensure each post contributes to the overall narrative while providing individual value.`,
+          content: `Generate exactly ${totalPosts} posts as a clean JSON array. No additional text or formatting.`,
         },
       ],
     })
@@ -138,27 +179,73 @@ Return a JSON array with exactly ${totalPosts} objects, each containing:
     // Parse the response
     const textContent = message.content.find(c => c.type === 'text')?.text
     if (!textContent) {
-      throw new Error('No text content in response')
+      throw new Error('No text content in response from Claude')
     }
 
-    // Extract JSON from the response
-    const jsonMatch = textContent.match(/\[[\s\S]*\]/)
-    if (!jsonMatch) {
-      throw new Error('No JSON array found in response')
+    if (isDebug) {
+      console.log('🔧 Debug: Raw Claude response (first 500 chars):', textContent.substring(0, 500))
     }
 
-    const posts = JSON.parse(jsonMatch[0]) as Array<{
+    // Extract JSON from the response using improved method
+    const jsonString = extractJsonFromResponse(textContent)
+    if (!jsonString) {
+      console.error('❌ Failed to extract JSON. Full response:', textContent)
+      throw new Error('No valid JSON array found in Claude response')
+    }
+
+    if (isDebug) {
+      console.log('🔧 Debug: Extracted JSON (first 300 chars):', jsonString.substring(0, 300))
+    }
+
+    let posts: Array<{
       english_content: string
       swedish_content: string
       template_used?: 'story' | 'tool'
     }>
 
+    try {
+      posts = JSON.parse(jsonString)
+    } catch (parseError) {
+      console.error('❌ JSON Parse Error:', parseError)
+      console.error('❌ Problematic JSON string:', jsonString)
+      
+      // Try to clean and retry
+      try {
+        const cleanedJson = jsonString
+          .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')  // Remove control chars
+          .replace(/\n/g, ' ')  // Replace newlines with spaces
+          .replace(/\r/g, '')   // Remove carriage returns
+          .replace(/\t/g, ' ')  // Replace tabs with spaces
+        
+        if (isDebug) {
+          console.log('🔧 Debug: Cleaned JSON attempt:', cleanedJson.substring(0, 200))
+        }
+        
+        posts = JSON.parse(cleanedJson)
+      } catch (secondError) {
+        console.error('❌ Second parse attempt failed:', secondError)
+        throw new Error(`Failed to parse JSON response: ${parseError}`)
+      }
+    }
+
+    if (!Array.isArray(posts)) {
+      throw new Error('Response is not a valid array')
+    }
+
+    if (posts.length === 0) {
+      throw new Error('No posts generated')
+    }
+
+    if (isDebug) {
+      console.log('✅ Successfully parsed', posts.length, 'posts')
+    }
+
     // Validate and ensure character limits
     return posts.map((post, index) => {
       // Trim Twitter content if it exceeds 280 characters
-      const english_content = post.english_content.slice(0, 280)
+      const english_content = post.english_content?.slice(0, 280) || ''
       // Trim LinkedIn content if it exceeds 3000 characters
-      const swedish_content = post.swedish_content.slice(0, 3000)
+      const swedish_content = post.swedish_content?.slice(0, 3000) || ''
 
       // Determine template for each post
       let postTemplate: PostTemplate = null
@@ -180,15 +267,33 @@ Return a JSON array with exactly ${totalPosts} objects, each containing:
       }
     })
   } catch (error) {
-    console.error('Error generating phase content:', error)
-    throw new Error('Failed to generate phase content')
+    console.error('❌ Error generating phase content:', error)
+    
+    if (error instanceof Error) {
+      // Log specific error details
+      if (error.message.includes('API key')) {
+        throw new Error('Claude API key is invalid or not configured')
+      }
+      if (error.message.includes('rate limit')) {
+        throw new Error('Rate limit exceeded. Please try again in a few minutes.')
+      }
+      if (error.message.includes('quota')) {
+        throw new Error('API quota exceeded. Check your Claude account.')
+      }
+      
+      throw error
+    }
+    
+    throw new Error('Unknown error occurred during content generation')
   }
 }
 
 export async function translateToSwedish(englishText: string): Promise<string> {
+  const anthropic = createAnthropicClient()
+  
   try {
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-latest',
+      model: 'claude-3-5-sonnet-20241022', // Updated model name
       max_tokens: 4000,
       temperature: 0.3,
       system: `You are a professional translator specializing in English to Swedish translations for social media content.
@@ -256,6 +361,8 @@ export function validateContentRequest(
 
 // Generic helper function for creating messages with error handling
 export async function createMessage(params: Anthropic.Messages.MessageCreateParams) {
+  const anthropic = createAnthropicClient()
+  
   try {
     if (!validateApiKey()) {
       throw new Error('Claude API key is not configured')
@@ -280,6 +387,8 @@ export async function createMessage(params: Anthropic.Messages.MessageCreatePara
 export async function createStreamingMessage(
   params: Anthropic.Messages.MessageCreateParams
 ) {
+  const anthropic = createAnthropicClient()
+  
   try {
     if (!validateApiKey()) {
       throw new Error('Claude API key is not configured')

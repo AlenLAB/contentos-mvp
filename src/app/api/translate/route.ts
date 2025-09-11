@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import anthropic, { validateApiKey } from '@/lib/claude'
+import { translateToSwedish, validateApiKey } from '@/lib/claude'
 
 // Request body interface
 interface TranslateContentRequest {
@@ -103,27 +103,7 @@ Create an engaging, expanded LinkedIn post in Swedish that:
 Return ONLY the Swedish LinkedIn post, no explanations or metadata.`
 
     // Generate translation using Claude
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 4000,
-      temperature: 0.7,
-      system: getTranslationPrompt(body.template),
-      messages: [
-        {
-          role: 'user',
-          content: userMessage
-        }
-      ]
-    })
-
-    // Extract the text content from response
-    const textContent = response.content.find(c => c.type === 'text')?.text
-    if (!textContent) {
-      throw new Error('No text content in Claude response')
-    }
-
-    // Clean and validate the Swedish content
-    let swedishContent = textContent.trim()
+    let swedishContent = await translateToSwedish(body.englishContent)
     
     // Remove any potential wrapper text that Claude might add
     // (Sometimes Claude adds "Here is the Swedish LinkedIn post:" or similar)
