@@ -126,29 +126,97 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('[generate] 🧨 Error in generate API:', error)
+    const requestId = request.headers.get('x-request-id') || 'unknown'
+    console.error(`[generate][${requestId}] 🧨 Error in generate API:`, error)
     
     if (error instanceof Error) {
-      // Handle Claude API specific errors
-      if (error.message.includes('API key')) {
+      // Handle specific error types with user-friendly messages
+      if (error.message.includes('API key') || error.message.includes('CLAUDE_API_KEY')) {
         return NextResponse.json(
-          { error: 'AI service configuration error. Please check API keys.' },
+          { 
+            error: 'AI service not configured',
+            details: 'The ContentOS AI service is not properly set up. Please check that your Claude API key is configured correctly.',
+            errorType: 'configuration',
+            requestId
+          },
           { status: 500 }
         )
       }
       
-      if (error.message.includes('rate limit')) {
+      if (error.message.includes('rate limit') || error.message.includes('429')) {
         return NextResponse.json(
-          { error: 'Too many requests. Please try again in a few minutes.' },
+          { 
+            error: 'Too many requests',
+            details: 'You\'ve exceeded the AI service rate limit. Please wait a few minutes and try again.',
+            errorType: 'rate_limit',
+            requestId,
+            suggestion: 'Try generating fewer posts at once or wait 2-3 minutes before retrying.'
+          },
           { status: 429 }
+        )
+      }
+      
+      if (error.message.includes('Supabase') || error.message.includes('database') || error.message.includes('NEXT_PUBLIC_SUPABASE')) {
+        return NextResponse.json(
+          { 
+            error: 'Database connection failed',
+            details: 'Unable to connect to the ContentOS database. Please try again in a moment.',
+            errorType: 'database',
+            requestId
+          },
+          { status: 500 }
+        )
+      }
+      
+      if (error.message.includes('timeout') || error.message.includes('AbortError')) {
+        return NextResponse.json(
+          { 
+            error: 'Request timed out',
+            details: 'The content generation took too long to complete.',
+            errorType: 'timeout',
+            requestId,
+            suggestion: 'Try generating fewer posts at once (reduce duration or posts per day).'
+          },
+          { status: 408 }
+        )
+      }
+      
+      if (error.message.includes('network') || error.message.includes('fetch') || error.message.includes('ENOTFOUND')) {
+        return NextResponse.json(
+          { 
+            error: 'Network connection failed',
+            details: 'Unable to connect to external services. Please check your internet connection.',
+            errorType: 'network',
+            requestId
+          },
+          { status: 503 }
+        )
+      }
+      
+      // Handle JSON parsing errors from Claude API
+      if (error.message.includes('JSON') || error.message.includes('parse')) {
+        return NextResponse.json(
+          { 
+            error: 'AI response format error',
+            details: 'The AI service returned an unexpected response format. This is usually temporary.',
+            errorType: 'parsing',
+            requestId,
+            suggestion: 'Try again - this usually resolves itself.'
+          },
+          { status: 502 }
         )
       }
     }
 
+    // Generic error with full context for debugging
     return NextResponse.json(
       { 
-        error: 'Failed to generate content',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Content generation failed',
+        details: error instanceof Error ? error.message : 'An unexpected error occurred during content generation.',
+        errorType: 'unknown',
+        requestId,
+        timestamp: new Date().toISOString(),
+        suggestion: 'Please try again. If the problem persists, try generating fewer posts.'
       },
       { status: 500 }
     )

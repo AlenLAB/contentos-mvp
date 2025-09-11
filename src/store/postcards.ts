@@ -191,20 +191,50 @@ export const usePostcardStore = create<PostcardStore>()(
 
         if (!response.ok) {
           // Try to get detailed error from response
-          let errorDetails = 'Failed to generate content'
+          let errorMessage = 'Failed to generate content'
+          let errorData = null
+          
           try {
-            const errorData = await response.json()
-            errorDetails = errorData.error || errorData.details || `HTTP ${response.status}: ${response.statusText}`
+            errorData = await response.json()
+            // Create a comprehensive error message
+            if (errorData.error && errorData.details) {
+              errorMessage = `${errorData.error}: ${errorData.details}`
+            } else if (errorData.error) {
+              errorMessage = errorData.error
+            } else if (errorData.details) {
+              errorMessage = errorData.details
+            } else {
+              errorMessage = `HTTP ${response.status}: ${response.statusText}`
+            }
+            
+            // Add suggestion if available
+            if (errorData.suggestion) {
+              errorMessage += ` (${errorData.suggestion})`
+            }
           } catch {
-            errorDetails = `HTTP ${response.status}: ${response.statusText}`
+            errorMessage = `HTTP ${response.status}: ${response.statusText}`
           }
+          
           console.error('[store][generatePhaseContent] API error:', {
             requestId: reqId,
             status: response.status,
             statusText: response.statusText,
-            error: errorDetails
+            errorType: errorData?.errorType || 'unknown',
+            error: errorMessage,
+            fullErrorData: errorData
           })
-          throw new Error(errorDetails)
+          
+          // Create enhanced error for better UI handling
+          const enhancedError = new Error(errorMessage)
+          // Add additional properties for UI error detection
+          if (errorData?.errorType) {
+            ;(enhancedError as any).errorType = errorData.errorType
+          }
+          if (errorData?.suggestion) {
+            ;(enhancedError as any).suggestion = errorData.suggestion
+          }
+          
+          throw enhancedError
         }
 
         const result = await response.json()

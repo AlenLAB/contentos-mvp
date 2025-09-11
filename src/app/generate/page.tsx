@@ -206,7 +206,38 @@ export default function GeneratePage() {
     const newSessionId = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     setSessionId(newSessionId)
     
+    // Progress simulation function
+    const simulateProgress = () => {
+      const steps = [
+        { progress: 5, message: 'Connecting to ContentOS...' },
+        { progress: 10, message: 'Preparing your content request...' },
+        { progress: 15, message: 'Validating phase details...' },
+        { progress: 25, message: `AI is generating ${calculateTotalPosts()} posts...` },
+        { progress: 45, message: 'AI working hard on your content...' },
+        { progress: 65, message: 'Almost there, finalizing posts...' },
+        { progress: 80, message: 'Saving posts to database...' },
+        { progress: 90, message: 'Organizing your content...' }
+      ]
+      
+      let stepIndex = 0
+      const progressInterval = setInterval(() => {
+        if (stepIndex < steps.length) {
+          const step = steps[stepIndex]
+          setGenerationProgress(step.progress)
+          setProgressMessage(step.message)
+          stepIndex++
+        }
+      }, 2000) // Update every 2 seconds
+      
+      return progressInterval
+    }
+    
+    // Start progress simulation
+    let progressInterval: NodeJS.Timeout | undefined
+    
     try {
+      progressInterval = simulateProgress()
+      
       // Create enriched description with all context
       const weeklyDetails = formData.weeklyThemes.map((theme, i) => {
         const description = formData.weeklyDescriptions[i] || ''
@@ -242,6 +273,13 @@ export default function GeneratePage() {
         template: formData.templateStyle
       })
       
+      // Clear progress simulation on success
+      if (progressInterval) {
+        clearInterval(progressInterval)
+      }
+      setGenerationProgress(100)
+      setProgressMessage('Success! All posts generated and saved.')
+      
       setGeneratedCount(calculateTotalPosts())
       toast.success(`Generated ${calculateTotalPosts()} postcards for ${formData.phaseTitle}`)
       
@@ -250,10 +288,80 @@ export default function GeneratePage() {
       }, 2000)
       
     } catch (error) {
+      // Clear progress simulation on error
+      if (progressInterval) {
+        clearInterval(progressInterval)
+      }
+      setGenerationProgress(0)
+      
+      // Capture detailed error information
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate content'
-      toast.error('Generation failed', {
-        description: errorMessage,
-        icon: <AlertCircle className="h-5 w-5" />
+      const isNetworkError = errorMessage.includes('fetch') || errorMessage.includes('network') || errorMessage.includes('HTTP')
+      const isAPIKeyError = errorMessage.includes('API key') || errorMessage.includes('unauthorized') || errorMessage.includes('401')
+      const isDatabaseError = errorMessage.includes('database') || errorMessage.includes('Supabase') || errorMessage.includes('insert')
+      const isTimeoutError = errorMessage.includes('timeout') || errorMessage.includes('took too long')
+      
+      // Determine user-friendly error message and progress message
+      let friendlyError = 'Generation failed'
+      let errorDetails = errorMessage
+      let progressError = 'Generation stopped unexpectedly'
+      
+      if (isAPIKeyError) {
+        friendlyError = 'AI Service Not Available'
+        errorDetails = 'The AI service is not properly configured. Please check that your API key is set up correctly.'
+        progressError = '❌ AI service connection failed'
+      } else if (isDatabaseError) {
+        friendlyError = 'Database Connection Failed'
+        errorDetails = 'Unable to save generated content to the database. Please try again in a moment.'
+        progressError = '❌ Database save failed'
+      } else if (isTimeoutError) {
+        friendlyError = 'Request Timed Out'
+        errorDetails = 'The generation took too long to complete. Try generating fewer posts at once.'
+        progressError = '❌ Generation timed out'
+      } else if (isNetworkError) {
+        friendlyError = 'Network Connection Error'
+        errorDetails = 'Unable to connect to ContentOS servers. Please check your internet connection.'
+        progressError = '❌ Connection failed'
+      } else {
+        progressError = `❌ Error: ${errorMessage.substring(0, 50)}...`
+      }
+      
+      setProgressMessage(progressError)
+      
+      // Log detailed error for debugging
+      console.error('[Generate Page] Full error details:', {
+        originalError: error,
+        errorMessage,
+        errorType: error?.constructor?.name,
+        stack: error instanceof Error ? error.stack : undefined,
+        sessionId: newSessionId,
+        formData: {
+          phaseTitle: formData.phaseTitle,
+          postsCount: calculateTotalPosts(),
+          duration: formData.duration,
+          postsPerDay: formData.postsPerDay
+        }
+      })
+      
+      // Show user-friendly error with option to see details
+      toast.error(friendlyError, {
+        description: (
+          <div className="space-y-2">
+            <p>{errorDetails}</p>
+            <details className="text-xs">
+              <summary className="cursor-pointer text-zinc-400 hover:text-white">
+                Show technical details
+              </summary>
+              <code className="block mt-2 p-2 bg-zinc-800 rounded text-xs break-all">
+                Session: {newSessionId}<br/>
+                Error: {errorMessage}<br/>
+                Posts to generate: {calculateTotalPosts()}
+              </code>
+            </details>
+          </div>
+        ),
+        icon: <AlertCircle className="h-5 w-5" />,
+        duration: 10000, // Show longer for complex errors
       })
     } finally {
       setIsGenerating(false)
