@@ -173,13 +173,15 @@ export const usePostcardStore = create<PostcardStore>()(
     },
 
     generatePhaseContent: async (phaseData) => {
+      // Create request ID BEFORE try block to ensure it's always accessible
+      const reqId = `cli_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+      
       set((state) => {
         state.isLoading = true
         state.error = null
       })
 
       try {
-        const reqId = `cli_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
         const response = await fetch('/api/generate', {
           method: 'POST',
           headers: {
@@ -254,18 +256,25 @@ export const usePostcardStore = create<PostcardStore>()(
           })
         }
       } catch (error) {
-        console.error('[store][generatePhaseContent] Generation failed:', {
-          error: error instanceof Error ? error.message : error,
-          stack: error instanceof Error ? error.stack : undefined,
-          requestId: reqId,
-          phaseData: {
-            title: phaseData.phaseTitle,
-            descriptionLength: phaseData.phaseDescription?.length || 0,
-            postsPerDay: phaseData.postsPerDay,
-            duration: phaseData.duration,
-            template: phaseData.template
-          }
-        })
+        // Safe error logging with error boundary
+        try {
+          console.error('[store][generatePhaseContent] Generation failed:', {
+            error: error instanceof Error ? error.message : error,
+            stack: error instanceof Error ? error.stack : undefined,
+            requestId: reqId,
+            phaseData: {
+              title: phaseData?.phaseTitle || 'unknown',
+              descriptionLength: phaseData?.phaseDescription?.length || 0,
+              postsPerDay: phaseData?.postsPerDay || 0,
+              duration: phaseData?.duration || 0,
+              template: phaseData?.template || 'unknown'
+            }
+          })
+        } catch (logError) {
+          // Prevent logging errors from crashing the app
+          console.error('[store] Critical: Logging failed:', logError)
+          console.error('[store] Original error was:', error)
+        }
         set((state) => {
           state.error = error instanceof Error ? error.message : 'Failed to generate content'
           state.isLoading = false

@@ -232,8 +232,9 @@ export default function GeneratePage() {
       return progressInterval
     }
     
-    // Start progress simulation
+    // Start progress simulation and create abort controller for proper cleanup
     let progressInterval: NodeJS.Timeout | undefined
+    const abortController = new AbortController()
     
     try {
       progressInterval = simulateProgress()
@@ -288,11 +289,14 @@ export default function GeneratePage() {
       }, 2000)
       
     } catch (error) {
-      // Clear progress simulation on error
+      // IMMEDIATELY abort all operations and clear progress
+      abortController.abort()
       if (progressInterval) {
         clearInterval(progressInterval)
+        progressInterval = undefined
       }
       setGenerationProgress(0)
+      setProgressMessage('❌ Generation failed - checking what went wrong...')
       
       // Capture detailed error information
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate content'
@@ -328,20 +332,26 @@ export default function GeneratePage() {
       
       setProgressMessage(progressError)
       
-      // Log detailed error for debugging
-      console.error('[Generate Page] Full error details:', {
-        originalError: error,
-        errorMessage,
-        errorType: error?.constructor?.name,
-        stack: error instanceof Error ? error.stack : undefined,
-        sessionId: newSessionId,
-        formData: {
-          phaseTitle: formData.phaseTitle,
-          postsCount: calculateTotalPosts(),
-          duration: formData.duration,
-          postsPerDay: formData.postsPerDay
-        }
-      })
+      // Safe error logging with error boundary
+      try {
+        console.error('[Generate Page] Full error details:', {
+          originalError: error,
+          errorMessage,
+          errorType: error?.constructor?.name,
+          stack: error instanceof Error ? error.stack : undefined,
+          sessionId: newSessionId,
+          formData: {
+            phaseTitle: formData?.phaseTitle || 'unknown',
+            postsCount: calculateTotalPosts(),
+            duration: formData?.duration || 0,
+            postsPerDay: formData?.postsPerDay || 0
+          }
+        })
+      } catch (logError) {
+        // Prevent logging errors from crashing the app
+        console.error('[Generate Page] Critical: Logging failed:', logError)
+        console.error('[Generate Page] Original error was:', error)
+      }
       
       // Show user-friendly error with option to see details
       toast.error(friendlyError, {
@@ -353,9 +363,9 @@ export default function GeneratePage() {
                 Show technical details
               </summary>
               <code className="block mt-2 p-2 bg-zinc-800 rounded text-xs break-all">
-                Session: {newSessionId}<br/>
-                Error: {errorMessage}<br/>
-                Posts to generate: {calculateTotalPosts()}
+                {`Session: ${newSessionId}
+Error: ${errorMessage}
+Posts to generate: ${calculateTotalPosts()}`}
               </code>
             </details>
           </div>
@@ -364,6 +374,14 @@ export default function GeneratePage() {
         duration: 10000, // Show longer for complex errors
       })
     } finally {
+      // Always clean up progress simulation and abort any ongoing operations
+      if (progressInterval) {
+        clearInterval(progressInterval)
+        progressInterval = undefined
+      }
+      if (!abortController.signal.aborted) {
+        abortController.abort()
+      }
       setIsGenerating(false)
     }
   }
