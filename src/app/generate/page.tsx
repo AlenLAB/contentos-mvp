@@ -303,14 +303,19 @@ export default function GeneratePage() {
       const isNetworkError = errorMessage.includes('fetch') || errorMessage.includes('network') || errorMessage.includes('HTTP')
       const isAPIKeyError = errorMessage.includes('API key') || errorMessage.includes('unauthorized') || errorMessage.includes('401')
       const isDatabaseError = errorMessage.includes('database') || errorMessage.includes('Supabase') || errorMessage.includes('insert')
-      const isTimeoutError = errorMessage.includes('timeout') || errorMessage.includes('took too long')
+      const isTimeoutError = errorMessage.includes('timeout') || errorMessage.includes('took too long') || errorMessage.includes('504')
+      const isFreeTierError = errorMessage.includes('free tier') || errorMessage.includes('Too many posts')
       
       // Determine user-friendly error message and progress message
       let friendlyError = 'Generation failed'
       let errorDetails = errorMessage
       let progressError = 'Generation stopped unexpectedly'
       
-      if (isAPIKeyError) {
+      if (isFreeTierError) {
+        friendlyError = 'Free Tier Limit Exceeded'
+        errorDetails = `You can only generate 5 posts at a time on Vercel's free tier (10-second timeout limit). You tried to generate ${calculateTotalPosts()} posts. Please reduce the duration or posts per day.`
+        progressError = '❌ Too many posts for free tier'
+      } else if (isAPIKeyError) {
         friendlyError = 'AI Service Not Available'
         errorDetails = 'The AI service is not properly configured. Please check that your API key is set up correctly.'
         progressError = '❌ AI service connection failed'
@@ -874,6 +879,19 @@ Posts to generate: ${calculateTotalPosts()}`}
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* Free Tier Warning */}
+          {calculateTotalPosts() > 5 && (
+            <div className="fixed bottom-16 left-0 right-0 bg-orange-500/10 border-t border-orange-500/20 backdrop-blur-sm z-40">
+              <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-center gap-2">
+                <AlertCircle className="h-4 w-4 text-orange-500" />
+                <span className="text-xs text-orange-500">
+                  <strong>Free Tier Limit:</strong> Maximum 5 posts per generation to avoid timeout. 
+                  You have {calculateTotalPosts()} posts. Please reduce duration or posts per day, or generate multiple times.
+                </span>
+              </div>
+            </div>
           )}
 
           {/* Sticky Bottom Bar */}

@@ -50,8 +50,8 @@ function createAnthropicClient(): Anthropic {
   
   return new Anthropic({
     apiKey,
-    maxRetries: 3,
-    timeout: 120000, // 2 minutes for generation
+    maxRetries: 1, // Reduce retries to stay within 10-second limit
+    timeout: 8000, // 8 seconds (Vercel free tier has 10-second limit)
   })
 }
 

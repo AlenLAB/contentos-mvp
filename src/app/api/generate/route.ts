@@ -54,11 +54,33 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    // Generate the content using Claude
+    
+    // FREE TIER LIMITATION: Prevent timeout by limiting posts
     const postsPerDay = body.postsPerDay || 1
     const duration = body.duration || 30
     const totalToGenerate = postsPerDay * duration
+    const FREE_TIER_MAX_POSTS = 5 // Must complete within 10 seconds
+    
+    if (totalToGenerate > FREE_TIER_MAX_POSTS) {
+      console.log(`[generate][${requestId}] ⚠️ Free tier limit exceeded: ${totalToGenerate} posts requested, max ${FREE_TIER_MAX_POSTS}`)
+      return NextResponse.json(
+        { 
+          error: 'Too many posts for free tier',
+          details: `Vercel free tier has a 10-second timeout. You requested ${totalToGenerate} posts, but the maximum is ${FREE_TIER_MAX_POSTS} posts to avoid timeout.`,
+          errorType: 'free_tier_limit',
+          requestId,
+          suggestion: `Try generating ${FREE_TIER_MAX_POSTS} posts at a time. You can run multiple generations to create more content.`,
+          limits: {
+            requested: totalToGenerate,
+            maximum: FREE_TIER_MAX_POSTS,
+            reason: 'Vercel free tier 10-second timeout'
+          }
+        },
+        { status: 400 }
+      )
+    }
+
+    // Generate the content using Claude (variables already declared above)
     console.log(`[generate][${requestId}] 🤖 Calling Claude to generate ${totalToGenerate} posts`)
     const generatedPosts = await generatePhaseContent({
       phaseTitle: body.phaseTitle,
@@ -224,4 +246,5 @@ export async function POST(request: NextRequest) {
 }
 
 // Configure Vercel function max duration (in seconds)
-export const maxDuration = 60
+// Note: Free tier is limited to 10 seconds regardless of this setting
+export const maxDuration = 10 // Match free tier limit
